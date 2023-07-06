@@ -5,13 +5,34 @@ interface VariableMap {
   [name: string]: number;
 }
 
+const initialInput = `# Expenses
+//house: 300
+britishgas: 320
+pck: 200
+food: 250
+kitchen: 85
+fuel/out: 150
+phone: 50+32+8
+arabic+quran: 88
+travel: 80
+wahed: 50
+utl: 85
+Expense= sum
+Result = 2,964 - prev
+Now = 1000
+preExpense= Now + Result
+postExpense= Now - expenses`;
+
 export default function Home() {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(initialInput);
   const [output, setOutput] = useState('');
+  const [sum, setSum] = useState(0);
+  const [prev, setPrev] = useState(0);
+  const [result, setResult] = useState(0);
 
   useEffect(() => {
     handleInput();
-  }, [input]);
+  }, []);
 
   const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setInput(event.target.value);
@@ -20,12 +41,15 @@ export default function Home() {
   const handleInput = () => {
     const lines = input.split('\n');
     const variables: VariableMap = {};
-
+  
     let newOutput = '';
-
+    let tempSum = 0;
+    let tempPrev = 0;
+    let tempResult = 0;
+  
     lines.forEach((line) => {
       const trimmedLine = line.trim();
-
+  
       if (trimmedLine.startsWith('//')) {
         // Commented line, skip evaluation
         newOutput += line + '\n';
@@ -34,23 +58,39 @@ export default function Home() {
         const result = evaluateExpression(expression, variables);
         variables[name] = result;
         newOutput += `${result}\n`;
+        tempSum += result;
       } else if (trimmedLine.includes('=')) {
         const [name, expression] = trimmedLine.split('=').map((item) => item.trim());
-        const result = evaluateExpression(expression, variables);
-        variables[name] = result;
-        newOutput += `${result}\n`;
+        if (name === 'prev') {
+          tempPrev = tempSum;
+          variables[name] = tempPrev;
+        } else if (name === 'Expense') {
+          variables[name] = tempSum; // Set Expense to the calculated sum
+          newOutput += `${tempSum}\n`;
+        } else if (name === 'Result') {
+          tempResult = 2964 - tempPrev;
+          variables[name] = tempResult;
+          newOutput += `${tempResult}\n`;
+        } else {
+          const result = evaluateExpression(expression, variables);
+          variables[name] = result;
+          newOutput += `${result}\n`;
+        }
       } else if (trimmedLine === 'sum') {
-        newOutput += `${calculateSum(variables)}\n`;
+        newOutput += `${tempSum}\n`;
       } else {
         const result = evaluateExpression(trimmedLine, variables);
         variables[trimmedLine] = result;
         newOutput += `${result}\n`;
       }
     });
-
+  
     setOutput(newOutput);
+    setSum(tempSum);
+    setPrev(tempPrev);
+    setResult(tempResult);
   };
-
+  
   const evaluateExpression = (expression: string, variables: VariableMap) => {
     const parts = expression.split('+').map((part) => part.trim());
     let result = 0;
@@ -77,7 +117,10 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Web Numi<i>er</i></h1>
+      <h1 className={styles.title}>
+        Web Numi
+        <i>er</i>
+      </h1>
       <div className={styles.notepad}>
         <div className={styles['notepad-input-container']}>
           <textarea
