@@ -3,7 +3,7 @@
 .title {
   font-size: 6.5vw;
   font-weight: bold;
-  background: linear-gradient(50deg, #ff50b9, #4e04ae);
+  background: linear-gradient(50deg, #ff7f00,rgb(204, 0, 255));
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
