@@ -53,7 +53,10 @@ export default function Home() {
       let result = 0
       if (trimmedLine.startsWith('//')) {
         // Commented line, skip evaluation
-        newOutput += '-- \n';
+        newOutput += '--';
+      } else if (trimmedLine.startsWith('#')) {
+        // Commented line, skip evaluation
+        newOutput += '--';
       } else if (trimmedLine.includes(':')) {
         const [name, expression] = trimmedLine.split(':').map((item) => item.trim().toLowerCase());
         result = evaluateExpression(expression, variables)
@@ -69,6 +72,7 @@ export default function Home() {
       }
       console.log(result)
       newOutput += `${result? result : '--'}\n`;
+      console.log(newOutput)
       tempSum += result;
       tempPrev = result;
     });
