@@ -19,7 +19,8 @@ jobs:
           channelId: live
           projectId: webnumier
       - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-        env:
-          FIREBASE_CLI_EXPERIMENTS: webframeworks
+     with:
+       # ...
+     env:
+       FIREBASE_CLI_EXPERIMENTS: webframeworks
   
