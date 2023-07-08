@@ -6,86 +6,82 @@ interface VariableMap {
   [name: string]: number;
 }
 
-const initialInput = `# Expenses
-//house: 300
-britishgas: 320
-pck: 200 
+const initialInput = `# Example Heading
+//comment: 300
+monthlyPayDate=15
+gas: 300
 food: 250 
-kitchen: 85
-fuel/out: 150 
-phone: 50+32+8
-arabic+quran: 88
-travel: 80
-wahed: 50 
-utl: 85
-Expenses = sum 
-Result = 2,964 - prev
-Now = 1000
-preExpense= Now + Result 
-postExpense= Now - expenses`;
+100/4
+Variable = prev*2
+Total=sum-variable
+25% 200`;
 
 export default function Home() {
   const [input, setInput] = useState(initialInput);
   const [output, setOutput] = useState('');
   const [sum, setSum] = useState(0);
   const [prev, setPrev] = useState(0);
-  const reservedKeywords = ["prev", "sum"]
+  const [message, setCustomMessage] = useState('');
+
+  const reservedKeywords = ["prev", "sum", "to", "in"]
+  const currencySymbol = ["£", "$", "€"]
   const variables: VariableMap = {};
   let newOutput = '';
   let tempSum = 0;
   let tempPrev = 0;
-
-
-  useEffect(() => {
-    handleInput();
-  }, []);
-
+  let custom = ''
   const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setInput(event.target.value);
   };
 
+  useEffect(() => {
+    handleInput();
+  }, [input]);
+
+
   const handleInput = () => {
     const lines = input.split('\n');
-    // let tempResult = 0;
 
     lines.forEach((line) => {
       const trimmedLine = line.trim();
       let result = 0
-      if (trimmedLine.startsWith('//')) {
-        // Commented line, skip evaluation
-        newOutput += '--';
-      } else if (trimmedLine.startsWith('#')) {
-        // Commented line, skip evaluation
-        newOutput += '--';
+     
+      if (trimmedLine.startsWith('#') || trimmedLine.startsWith('//')) {
+        custom = `-`
       } else if (trimmedLine.includes(':')) {
         const [name, expression] = trimmedLine.split(':').map((item) => item.trim().toLowerCase());
         result = evaluateExpression(expression, variables)
         variables[name] = result;
       } else if (trimmedLine.includes('=')) {
         const [name, expression] = trimmedLine.split("=").map((item) => item.trim().replace(/\,/g, '').toLowerCase());
-        result = evaluateExpression(expression, variables);         
+
+        if(name === "monthlypaydate"){
+          const monthlyPayDate = Number(expression);
+          custom = getDaysLeft(monthlyPayDate)
+        } else {
+          result = evaluateExpression(expression, variables);         
+        }
         variables[name] = result;
+      
       } else {
         if (trimmedLine) {
           result = evaluateExpression(trimmedLine, variables);
         }
       }
-      console.log(result)
-      newOutput += `${result? result : '--'}\n`;
-      console.log(newOutput)
+      newOutput += `${result? result : custom}\n`;
       tempSum += result;
       tempPrev = result;
+      custom = "-"
     });
 
     setOutput(newOutput);
     setSum(tempSum);
     setPrev(tempPrev);
-    // setResult(tempResult);
   };
 
   const evaluateExpression = (expression: string, variables: VariableMap) => {
     const individualValue = expression.split(/[+-/*()]/gm).map((item) => item.trim());
-    // let result2 = evaluateExpression(moreExpressions, variables);
+
     individualValue.forEach(value => {
       if (typeof value == "string") {
         if (reservedKeywords.includes(value)) {
@@ -96,32 +92,59 @@ export default function Home() {
             expression = expression.replace(value, String(tempSum))
           }
         }
-        
         if (variables[value] >= 0) {
           expression = expression.replace(value, String(variables[value]))
         }
       }
     })
 
-    let res
-    const exp  = Number(expression) 
-
+    let result
     if(expression.length > 0){
       try{
-        res = evaluate(expression)
+        result = evaluate(expression)
       }catch(e){
-        console.log(e)
+        console.error(e)
       }
     }
+    const formattedExp  = Number(expression) 
 
-    return res | exp
+    return result | formattedExp
   };
+
+
+  const getDaysLeft = (monthlyPayDate: number) => {
+    const today : any = new Date();
+    const date = today.getDate();
+    const daysLeft = monthlyPayDate - date;
+    const nextPayDate = new Date(today.setDate(date + daysLeft));
+
+    if (daysLeft < 0) {
+      nextPayDate.setMonth(today.getMonth()+1);
+    }
+
+    const day = new Date(nextPayDate).getDay();
+
+    let minusWeekend = 0
+    if (day === 6) {
+      minusWeekend -= 1;
+    } else if (day === 0) {
+      minusWeekend -= 2;
+    }
+
+    nextPayDate.setDate(nextPayDate.getDate() + minusWeekend)
+
+    const diffInMs   = new Date(nextPayDate).valueOf() - new Date().valueOf() 
+    const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
+    // const nextDate = nextPayDate.toLocaleDateString("en-GB")
+    const nextPayMsg = (`Next pay in ${diffInDays} Days`)
+    return nextPayMsg;
+  }
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>
-        Web Numi
-        <i>er</i>
+        Web Nume
+        <i>ric</i>
       </h1>
       <div className={styles.notepad}>
         <div className={styles['notepad-input-container']}>
