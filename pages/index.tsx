@@ -1,8 +1,8 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import styles from '../styles/Home.module.css';
 import { getDaysLeft } from '../helpers/paydate'
-import { VariableMap } from '../helpers/shareTypes'
-import { evaluateExpression } from '../helpers/calc'
+import { VariableMap } from '../helpers/sharedTypes'
+import { evaluateExpression } from '../helpers/calculate'
 
 const initialInput = `# Example Heading
 //comment: 300
@@ -11,9 +11,7 @@ gas: 300
 food: 250 
 100/4
 Variable = prev*2
-Total=sum-variable
-25% 200
-£1 in euro`;
+Total=sum-variable`;
 
 export default function Home() {
   const [input, setInput] = useState(initialInput);
@@ -26,8 +24,8 @@ export default function Home() {
   let customOutput = ''
 
   const keywordValues = {
-    tempSum : 0,
-    tempPrev : 0
+    tempSum: 0,
+    tempPrev: 0
   }
 
   const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -38,35 +36,42 @@ export default function Home() {
     handleInput();
   }, [input]);
 
-
+  // TODO: use regex, refactor code to avoid repetition and unnecessary re-rendering
+  
   const handleInput = () => {
     const lines = input.split('\n');
 
     lines.forEach((line) => {
       const trimmedLine = line.trim();
-      let result = 0
+      let result: any = 0;
 
       if (trimmedLine.startsWith('#') || trimmedLine.startsWith('//')) {
         customOutput = `-`
       } else if (trimmedLine.includes(':')) {
         const [name, expression] = trimmedLine.split(':').map((item) => item.trim().toLowerCase());
-        result = evaluateExpression(expression, variables, keywordValues)
+        const {evaluatedResult, hasCustomOutput} = evaluateExpression({ expression, variables, keywordValues })
+        result = evaluatedResult
+        customOutput = hasCustomOutput
         variables[name] = result;
       } else if (trimmedLine.includes('=')) {
         const [name, expression] = trimmedLine.split("=").map((item) => item.trim().replace(/\,/g, '').toLowerCase());
-
         if (name === "monthlypaydate") {
           const monthlyPayDate = Number(expression);
           customOutput = getDaysLeft(monthlyPayDate)
         } else {
-          result = evaluateExpression(expression, variables, keywordValues);
+          const {evaluatedResult, hasCustomOutput } = evaluateExpression({expression, variables, keywordValues});
+          result = evaluatedResult
+          customOutput = hasCustomOutput
         }
         variables[name] = result;
       } else {
         if (trimmedLine) {
-          result = evaluateExpression(trimmedLine, variables, keywordValues);
+          const output  = evaluateExpression({expression:trimmedLine, variables, keywordValues});
+          result = output.evaluatedResult
+          customOutput = output.hasCustomOutput
         }
       }
+      
       newOutput += `${result ? result : customOutput}\n`;
       keywordValues.tempSum += result;
       keywordValues.tempPrev = result;
@@ -81,7 +86,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>
-        Instant  
+        Instant
         <i>Calc</i>
       </h1>
       <div className={styles.notepad}>

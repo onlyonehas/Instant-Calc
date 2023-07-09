@@ -15,10 +15,11 @@ Instant Calc is a custom project, providing a simple and intuitive way to perfor
 
 1. Type your calculations in the input textarea.
 2. Press Enter or click outside the textarea to evaluate the expression.
-3. The output will be displayed in the output textarea below.
+3. The output will be displayed in the output textarea.
 4. Use variables, functions, and operators to perform advanced calculations.
 5. Add comments using the `//` prefix to document your calculations.
-6. 
+6. Add headings using the `#` prefix for ease of labelling.
+7. Make use of reserved keywords ["prev", "sum", "to", "monthlyPayDate", "in"]
 
 ## Technologies Used
 
