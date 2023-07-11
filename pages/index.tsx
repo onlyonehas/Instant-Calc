@@ -14,8 +14,8 @@ Variable = prev*2
 Total=sum-variable`;
 
 export default function Home() {
-  const [input, setInput] = useState(initialInput);
-  const [output, setOutput] = useState('');
+  const [input, setInput] = useState<string | null>(initialInput);
+  const [output, setOutput] = useState<string | null>('');
   const [sum, setSum] = useState(0);
   const [prev, setPrev] = useState(0);
 
@@ -33,15 +33,25 @@ export default function Home() {
   };
 
   useEffect(() => {
-    handleInput();
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const userInput = localStorage.getItem('userInput');
+      const userOutput = localStorage.getItem('userOutput');
+
+      userInput && setInput(userInput);
+      userOutput && setOutput(userOutput);
+    }
+  }, []);
+
+  useEffect(() => {
+    handleInput()
   }, [input]);
 
   // TODO: use regex, refactor code to avoid repetition and unnecessary re-rendering
   
   const handleInput = () => {
-    const lines = input.split('\n');
+    const lines = input?.split('\n');
 
-    lines.forEach((line) => {
+    lines?.forEach((line) => {
       const trimmedLine = line.trim();
       let result: any = 0;
 
@@ -78,7 +88,13 @@ export default function Home() {
       customOutput = "-"
     });
 
-    setOutput(newOutput);
+    let storedOutput: string | null = ""
+    if (typeof window !== "undefined" && window.localStorage) {
+      input && localStorage.setItem("userInput", input);
+      newOutput && localStorage.setItem("userOutput", newOutput);
+      storedOutput = localStorage?.getItem("userOutput");
+    }
+    setOutput(storedOutput || newOutput);
     setSum(keywordValues.tempSum);
     setPrev(keywordValues.tempPrev);
   };
@@ -92,7 +108,7 @@ export default function Home() {
       <div className={styles.notepad}>
         <div className={styles['notepad-input-container']}>
           <textarea
-            value={input}
+            value={input || ""}
             onChange={handleInputChange}
             placeholder="Type your calculations here..."
             className={`${styles['futuristic-textarea']} ${styles['textarea-input']}`}
