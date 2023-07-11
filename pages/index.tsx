@@ -3,6 +3,9 @@ import styles from '../styles/Home.module.css';
 import { getDaysLeft } from '../helpers/paydate'
 import { VariableMap } from '../helpers/sharedTypes'
 import { evaluateExpression } from '../helpers/calculate'
+import { useQuill } from 'react-quilljs';
+import 'quill/dist/quill.bubble.css';
+import { editorCss } from '@/styles/editor';
 
 const initialInput = `# Example Heading
 //comment: 300
@@ -19,6 +22,20 @@ export default function Home() {
   const [sum, setSum] = useState(0);
   const [prev, setPrev] = useState(0);
 
+  const theme = 'bubble';
+  const modules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+    ],
+  };
+  const placeholder = 'Compose an epic...';
+  const formats = ['bold', 'italic', 'underline', 'strike'];
+
+  const { quill, quillRef } = useQuill({ theme, modules, formats, placeholder });
+
+  console.log(quill);    // undefined > Quill Object
+  console.log(quillRef);
+
   const variables: VariableMap = {};
   let newOutput = '';
   let customOutput = ''
@@ -33,11 +50,17 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (quill) {
+      quill.clipboard.dangerouslyPasteHTML(input);
+    }
+  }, [quill]);
+
+  useEffect(() => {
     handleInput();
   }, [input]);
 
   // TODO: use regex, refactor code to avoid repetition and unnecessary re-rendering
-  
+
   const handleInput = () => {
     const lines = input.split('\n');
 
@@ -49,7 +72,7 @@ export default function Home() {
         customOutput = `-`
       } else if (trimmedLine.includes(':')) {
         const [name, expression] = trimmedLine.split(':').map((item) => item.trim().toLowerCase());
-        const {evaluatedResult, hasCustomOutput} = evaluateExpression({ expression, variables, keywordValues })
+        const { evaluatedResult, hasCustomOutput } = evaluateExpression({ expression, variables, keywordValues })
         result = evaluatedResult
         customOutput = hasCustomOutput
         variables[name] = result;
@@ -59,19 +82,19 @@ export default function Home() {
           const monthlyPayDate = Number(expression);
           customOutput = getDaysLeft(monthlyPayDate)
         } else {
-          const {evaluatedResult, hasCustomOutput } = evaluateExpression({expression, variables, keywordValues});
+          const { evaluatedResult, hasCustomOutput } = evaluateExpression({ expression, variables, keywordValues });
           result = evaluatedResult
           customOutput = hasCustomOutput
         }
         variables[name] = result;
       } else {
         if (trimmedLine) {
-          const output  = evaluateExpression({expression:trimmedLine, variables, keywordValues});
+          const output = evaluateExpression({ expression: trimmedLine, variables, keywordValues });
           result = output.evaluatedResult
           customOutput = output.hasCustomOutput
         }
       }
-      
+
       newOutput += `${result ? result : customOutput}\n`;
       keywordValues.tempSum += result;
       keywordValues.tempPrev = result;
@@ -89,6 +112,9 @@ export default function Home() {
         Instant
         <i>Calc</i>
       </h1>
+        <div className={styles['notepad-input-container']} style={editorCss}>
+          <div ref={quillRef} />
+        </div>
       <div className={styles.notepad}>
         <div className={styles['notepad-input-container']}>
           <textarea
@@ -109,6 +135,6 @@ export default function Home() {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 }
