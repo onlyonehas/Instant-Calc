@@ -16,8 +16,8 @@ Total=sum-variable`;
 export default function Home() {
   const [input, setInput] = useState<string | null>(initialInput);
   const [output, setOutput] = useState<string | null>('');
-  const [sum, setSum] = useState(0);
-  const [prev, setPrev] = useState(0);
+  const [, setSum] = useState(0);
+  const [, setPrev] = useState(0);
 
   const variables: VariableMap = {};
   let newOutput = '';
@@ -53,7 +53,7 @@ export default function Home() {
 
     lines?.forEach((line) => {
       const trimmedLine = line.trim();
-      let result: any = 0;
+      let result: number = 0;
 
       if (trimmedLine.startsWith('#') || trimmedLine.startsWith('//')) {
         customOutput = `-`
