@@ -101,26 +101,27 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
+      {/* <div className={styles.header}></div> */}
       <h1 className={styles.title}>
         Instant
         <i>Calc</i>
       </h1>
       <div className={styles.notepad}>
-        <div className={styles['notepad-input-container']}>
+        <div className={styles['notepadInputContainer']}>
           <textarea
             value={input || ""}
             onChange={handleInputChange}
             placeholder="Type your calculations here..."
-            className={`${styles['futuristic-textarea']} ${styles['textarea-input']}`}
+            className={`${styles['futuristicTextarea']} ${styles['textareaInput']}`}
           />
         </div>
         {output && (
-          <div className={styles['notepad-output-container']}>
+          <div className={styles['notepadOutputContainer']}>
             <textarea
               readOnly
               value={output}
               placeholder="Output"
-              className={`${styles['futuristic-textarea']} ${styles['textarea-output']}`}
+              className={`${styles['futuristicTextarea']} ${styles['textareaOutput']}`}
             />
           </div>
         )}

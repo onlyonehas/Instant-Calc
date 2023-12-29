@@ -1,9 +1,7 @@
-/* styles/Home.module.css */
-
 .title {
   font-size: 6.5vw;
   font-weight: bold;
-  background: linear-gradient(50deg, #ff7f00,rgb(204, 0, 255));
+  background: linear-gradient(50deg, #ff7f00, rgb(204, 0, 255));
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -11,23 +9,21 @@
   animation: gradient-animation 2s ease-in-out infinite;
 }
 
+.header{
+  height: 5vw;
+  background: lightgrey;
+  opacity: 60%;
+}
+
+
 @keyframes gradient-animation {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .container {
   text-align: center;
-  padding: 20px;
 }
 
 .notepad {
@@ -36,36 +32,56 @@
   margin-bottom: 20px;
 }
 
-.notepad-input-container {
-  width: 60%;
-  margin-left: 20px;
-
+.notepadInputContainer {
+  width: 100%;
 }
 
-.notepad-output-container {
+.notepadOutputContainer {
   width: 100%;
-  margin-right: 20px;
 }
 
-.futuristic-textarea {
+.futuristicTextarea {
   width: 100%;
-  height: 100%;
   min-height: 440px;
-  padding: 20px;
-  font-size: 1.5vw;
+  padding:  2vw;
+  font-size: 2vw;
   font-weight: bold;
   background-color: #0e0e13;
-  color: #ffffff;
+  color: whitesmoke;
   border: none;
   border-radius: 10px;
-  padding-left: 48%;
   outline: none;
   resize: vertical;
 }
 
-.textarea-output {
+.textareaInput {
+  padding-left: 35%;
+}
+.textareaOutput {
   width: 80%;
-  color: #00e5ff;
-  padding-left: 0%;
-  padding-top: 19px;
+  color: greenyellow;
+  border-left: black;
+  border-style: groove
+}
+
+/* Media query for mobile devices */
+@media (max-width: 768px) {
+  .futuristicTextarea,
+  .textareaOutput {
+    font-size: 4vw; 
+    padding: 5vw; 
+    text-wrap: nowrap;
+  }
+
+  .textareaInput {
+    padding-left: 8%;
+  }
+
+  .title {
+    font-size: 10vw;
+  }
+  .notepadInputContainer,
+  .notepadOutputContainer {
+    padding: 10px; 
+  }
 }
