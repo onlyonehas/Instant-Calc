@@ -1,8 +1,14 @@
-import { useState, useEffect, ChangeEvent } from 'react';
+import 'dotenv/config'
+import 'tailwindcss/tailwind.css'
 import styles from '../styles/Home.module.css';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { getDaysLeft } from '../helpers/paydate'
 import { VariableMap } from '../helpers/sharedTypes'
 import { evaluateExpression } from '../helpers/calculate'
+import { GoogleAuthProvider, getAuth, signInWithPopup, signOut } from 'firebase/auth';
+import { app } from './_document';
+import { useCustomAuth } from '@/hooks/useCustomAuth';
+import { useCalculations } from '@/hooks/useCalculations';
 
 const initialInput = `# Example Heading
 //comment: 300
@@ -15,9 +21,71 @@ Total=sum-variable`;
 
 export default function Home() {
   const [input, setInput] = useState<string | null>(initialInput);
-  const [output, setOutput] = useState<string | null>('');
+  const [output, setOutput] = useState<string | null>();
   const [, setSum] = useState(0);
   const [, setPrev] = useState(0);
+  const user = useCustomAuth();
+  const { calculations, saveCalculations, getCalculations } = useCalculations(user);
+  const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(event.target.value);
+  };
+
+  useEffect(() => {
+    getCalculations();
+  }, []);
+
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined' && window.localStorage) {
+  //     const userInput = localStorage.getItem('userInput');
+  //     const userOutput = localStorage.getItem('userOutput');
+
+  //     userInput && setInput(userInput);
+  //     userOutput && setOutput(userOutput);
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    if (calculations) {
+      setInput(calculations.input)
+      setOutput(calculations.output)
+    }
+  }, [calculations]);
+
+  useEffect(() => {
+    handleInput()
+  }, [input]);
+
+  const SignInButton = () => {
+    const signInWithGoogle = async () => {
+      try {
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    return (
+      <button onClick={signInWithGoogle} type="button" className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 me-2 mb-2">
+        <svg className="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
+          <path fillRule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clipRule="evenodd" />
+        </svg>
+        Sign in with Google
+      </button>
+    )
+  };
+
+  const SignOutButton = () => {
+    const signOutUser = () => {
+      const auth = getAuth(app);
+      signOut(auth).then(() => {
+      }).catch((error) => {
+        console.error(error);
+      });
+    };
+
+    return <button onClick={signOutUser}>Sign Out</button>;
+  };
 
   const variables: VariableMap = {};
   let newOutput = '';
@@ -28,27 +96,8 @@ export default function Home() {
     tempPrev: 0
   }
 
-  const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(event.target.value);
-  };
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const userInput = localStorage.getItem('userInput');
-      const userOutput = localStorage.getItem('userOutput');
-
-      userInput && setInput(userInput);
-      userOutput && setOutput(userOutput);
-    }
-  }, []);
-
-  useEffect(() => {
-    handleInput()
-  }, [input]);
-
   // TODO: use regex, refactor code to avoid repetition and unnecessary re-rendering
-  
-  const handleInput = () => {
+  const handleInput = async () => {
     const lines = input?.split('\n');
 
     lines?.forEach((line) => {
@@ -59,7 +108,7 @@ export default function Home() {
         customOutput = `-`
       } else if (trimmedLine.includes(':')) {
         const [name, expression] = trimmedLine.split(':').map((item) => item.trim().toLowerCase());
-        const {evaluatedResult, hasCustomOutput} = evaluateExpression({ expression, variables, keywordValues })
+        const { evaluatedResult, hasCustomOutput } = evaluateExpression({ expression, variables, keywordValues })
         result = evaluatedResult
         customOutput = hasCustomOutput
         variables[name] = result;
@@ -69,43 +118,59 @@ export default function Home() {
           const monthlyPayDate = Number(expression);
           customOutput = getDaysLeft(monthlyPayDate)
         } else {
-          const {evaluatedResult, hasCustomOutput } = evaluateExpression({expression, variables, keywordValues});
+          const { evaluatedResult, hasCustomOutput } = evaluateExpression({ expression, variables, keywordValues });
           result = evaluatedResult
           customOutput = hasCustomOutput
         }
         variables[name] = result;
       } else {
         if (trimmedLine) {
-          const output  = evaluateExpression({expression:trimmedLine, variables, keywordValues});
+          const output = evaluateExpression({ expression: trimmedLine, variables, keywordValues });
           result = output.evaluatedResult
           customOutput = output.hasCustomOutput
         }
       }
-      
+
       newOutput += `${result ? result : customOutput}\n`;
       keywordValues.tempSum += result;
       keywordValues.tempPrev = result;
       customOutput = "-"
     });
 
-    let storedOutput: string | null = ""
-    if (typeof window !== "undefined" && window.localStorage) {
-      input && localStorage.setItem("userInput", input);
-      newOutput && localStorage.setItem("userOutput", newOutput);
-      storedOutput = localStorage?.getItem("userOutput");
+    // let storedOutput: string | null = ""
+    // if (typeof window !== "undefined" && window.localStorage) {
+    //   input && localStorage.setItem("userInput", input);
+    //   newOutput && localStorage.setItem("userOutput", newOutput);
+    //   storedOutput = localStorage?.getItem("userOutput");
+    // }
+
+    if (user && input && output) {
+      if (input !== initialInput && output !== null) {
+        saveCalculations(input, output);
+      }
     }
-    setOutput(storedOutput || newOutput);
+
+    setOutput(newOutput);
     setSum(keywordValues.tempSum);
     setPrev(keywordValues.tempPrev);
   };
 
   return (
     <div className={styles.container}>
-      {/* <div className={styles.header}></div> */}
       <h1 className={styles.title}>
         Instant
         <i>Calc</i>
       </h1>
+      <div>
+        {!user ? (
+          <SignInButton />
+        ) : (
+          <div>
+            <p>Welcome, {user.displayName || 'Guest'}</p>
+            <SignOutButton />
+          </div>
+        )}
+      </div>
       <div className={styles.notepad}>
         <div className={styles['notepadInputContainer']}>
           <textarea

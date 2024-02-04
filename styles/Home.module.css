@@ -1,6 +1,5 @@
 .title {
   font-size: 6.5vw;
-  font-weight: bold;
   background: linear-gradient(50deg, #ff7f00, rgb(204, 0, 255));
   background-clip: text;
   -webkit-background-clip: text;
@@ -9,7 +8,7 @@
   animation: gradient-animation 2s ease-in-out infinite;
 }
 
-.header{
+.header {
   height: 5vw;
   background: lightgrey;
   opacity: 60%;
@@ -17,9 +16,17 @@
 
 
 @keyframes gradient-animation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .container {
@@ -43,9 +50,8 @@
 .futuristicTextarea {
   width: 100%;
   min-height: 440px;
-  padding:  2vw;
+  padding: 2vw;
   font-size: 2vw;
-  font-weight: bold;
   background-color: #0e0e13;
   color: whitesmoke;
   border: none;
@@ -57,8 +63,8 @@
 .textareaInput {
   padding-left: 35%;
 }
+
 .textareaOutput {
-  width: 80%;
   color: greenyellow;
   border-left: black;
   border-style: groove
@@ -66,10 +72,11 @@
 
 /* Media query for mobile devices */
 @media (max-width: 768px) {
+
   .futuristicTextarea,
   .textareaOutput {
-    font-size: 4vw; 
-    padding: 5vw; 
+    font-size: 4vw;
+    padding: 5vw;
     text-wrap: nowrap;
   }
 
@@ -80,8 +87,9 @@
   .title {
     font-size: 10vw;
   }
+
   .notepadInputContainer,
   .notepadOutputContainer {
-    padding: 10px; 
+    padding: 10px;
   }
 }
