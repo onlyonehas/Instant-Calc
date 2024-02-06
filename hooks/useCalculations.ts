@@ -20,13 +20,12 @@ export const useCalculations = (user: User | null): UseCalculationsResult => {
   const [calculations, setCalculations] = useState<Calculation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-
-  let calculationsRef: any;
+  const [calculationsRef, setCalculationsRef] = useState<any>(null);
+  const [hasFetchedCalculations, setHasFetchedCalculations] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      calculationsRef = ref(database, `users/${user?.uid}/calculations`);
-      getCalculations();
+    if (user && database) {
+      setCalculationsRef(ref(database, `users/${user?.uid}/calculations`));
     }
     return () => {
       if (calculationsRef) {
@@ -35,11 +34,18 @@ export const useCalculations = (user: User | null): UseCalculationsResult => {
     };
   }, [user, database]);
 
+  useEffect(() => {
+    if (!hasFetchedCalculations && calculationsRef) {
+      getCalculations(); // Pass the reference here
+      setHasFetchedCalculations(true);
+    }
+  }, [hasFetchedCalculations, calculationsRef]);
+
+
   const getCalculations = async () => {
     try {
       setIsLoading(true);
       setError(null);
-
       const snapshot = await get(calculationsRef);
       const data = snapshot.val() as Calculation;
       setCalculations(data);
@@ -55,10 +61,12 @@ export const useCalculations = (user: User | null): UseCalculationsResult => {
       setIsLoading(true);
       setError(null);
 
-      if (!calculations) {
-        await set(calculationsRef, { input, output });
-      } else {
-        await update(calculationsRef, { input, output });
+      if (calculationsRef) {
+        if (!calculations) {
+          await set(calculationsRef, { input, output });
+        } else {
+          const res = await update(calculationsRef, { input, output })
+        }
       }
     } catch (error) {
       setError(error as Error);

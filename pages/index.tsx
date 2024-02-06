@@ -1,14 +1,15 @@
 import 'dotenv/config'
 import 'tailwindcss/tailwind.css'
 import styles from '../styles/Home.module.css';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect, ChangeEvent, useCallback } from 'react';
 import { getDaysLeft } from '../helpers/paydate'
 import { VariableMap } from '../helpers/sharedTypes'
 import { evaluateExpression } from '../helpers/calculate'
-import { GoogleAuthProvider, getAuth, signInWithPopup, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, User, getAuth, signInWithPopup, signOut } from 'firebase/auth';
 import { app } from './_document';
 import { useCustomAuth } from '@/hooks/useCustomAuth';
 import { useCalculations } from '@/hooks/useCalculations';
+// import { Profile } from '@/app/profile';
 
 const initialInput = `# Example Heading
 //comment: 300
@@ -20,19 +21,17 @@ Variable = prev*2
 Total=sum-variable`;
 
 export default function Home() {
+  const user: User | null = useCustomAuth();
+  const { calculations, saveCalculations } = useCalculations(user);
+
   const [input, setInput] = useState<string | null>(initialInput);
   const [output, setOutput] = useState<string | null>();
   const [, setSum] = useState(0);
   const [, setPrev] = useState(0);
-  const user = useCustomAuth();
-  const { calculations, saveCalculations, getCalculations } = useCalculations(user);
+
   const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setInput(event.target.value);
   };
-
-  useEffect(() => {
-    getCalculations();
-  }, []);
 
   // useEffect(() => {
   //   if (typeof window !== 'undefined' && window.localStorage) {
@@ -83,8 +82,16 @@ export default function Home() {
         console.error(error);
       });
     };
-
-    return <button onClick={signOutUser}>Sign Out</button>;
+    return (
+      <div>
+        <div className="flex flex-col items-center">
+          <h2 className="text-xl font-medium">{user?.displayName} 👋</h2>
+          <p className="text-base font-medium text-gray-400">Calculations</p>
+        </div>
+        <button onClick={signOutUser} className="text-white bg-[#dd3838] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 me-2 mb-2">Sign Out</button>
+        <button onClick={saveToDatabase} className="text-white bg-[#1b722a] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 me-2 mb-2">Save</button>
+      </div>
+    )
   };
 
   const variables: VariableMap = {};
@@ -96,8 +103,16 @@ export default function Home() {
     tempPrev: 0
   }
 
+  const saveToDatabase = () => {
+    if (user && input && output) {
+      if (input !== initialInput && output !== null) {
+        saveCalculations(input, output);
+      }
+    }
+  }
+
   // TODO: use regex, refactor code to avoid repetition and unnecessary re-rendering
-  const handleInput = async () => {
+  const handleInput = useCallback(() => {
     const lines = input?.split('\n');
 
     lines?.forEach((line) => {
@@ -135,25 +150,17 @@ export default function Home() {
       keywordValues.tempSum += result;
       keywordValues.tempPrev = result;
       customOutput = "-"
-    });
-
+    })
     // let storedOutput: string | null = ""
     // if (typeof window !== "undefined" && window.localStorage) {
     //   input && localStorage.setItem("userInput", input);
     //   newOutput && localStorage.setItem("userOutput", newOutput);
     //   storedOutput = localStorage?.getItem("userOutput");
     // }
-
-    if (user && input && output) {
-      if (input !== initialInput && output !== null) {
-        saveCalculations(input, output);
-      }
-    }
-
     setOutput(newOutput);
     setSum(keywordValues.tempSum);
     setPrev(keywordValues.tempPrev);
-  };
+  }, [input]);
 
   return (
     <div className={styles.container}>
@@ -161,12 +168,11 @@ export default function Home() {
         Instant
         <i>Calc</i>
       </h1>
-      <div>
+      <div className='space-y-10 space-x-10'>
         {!user ? (
           <SignInButton />
         ) : (
           <div>
-            <p>Welcome, {user.displayName || 'Guest'}</p>
             <SignOutButton />
           </div>
         )}
