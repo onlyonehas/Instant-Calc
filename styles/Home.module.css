@@ -1,6 +1,6 @@
 .title {
   font-size: 6.5vw;
-  background: linear-gradient(50deg, #ff7f00, rgb(204, 0, 255));
+  background: -webkit-linear-gradient(0deg, #be22ff 20%, #ff279c 50%, #ff981f 80%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -47,6 +47,19 @@
   width: 100%;
 }
 
+.futuristicTextareaLight{
+  width: 100%;
+  min-height: 440px;
+  padding: 2vw;
+  font-size: 2vw;
+  background-color: #dedede;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 10px;
+  outline: none;
+  resize: vertical;
+}
+
 .futuristicTextarea {
   width: 100%;
   min-height: 440px;
@@ -62,6 +75,12 @@
 
 .textareaInput {
   padding-left: 35%;
+}
+
+.textareaOutputLight {
+  color: blue;
+  border-left: black;
+  border-style: groove
 }
 
 .textareaOutput {

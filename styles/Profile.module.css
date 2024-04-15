@@ -1,0 +1,17 @@
+.roundedPolygon {
+  --r: 30px;
+  /* the radius (not bigger than width/4 and no percentage) */
+  width: 50px;
+  /* the image size */
+  aspect-ratio: 1;
+  object-fit: cover;
+  clip-path:
+    polygon(50% calc(-.414*var(--r)), calc(100% + .414*var(--r)) 50%,
+      50% calc(100% + .414*var(--r)), calc(-.414*var(--r)) 50%);
+  --_l: #0000 calc(25% + .707*var(--r)),
+    #000 0 calc(75% - .707*var(--r)), #0000 0;
+  --_g: /calc(2*var(--r)) calc(2*var(--r)) radial-gradient(#000 70%, #0000 72%);
+  -webkit-mask:
+    linear-gradient(45deg, var(--_l)), linear-gradient(-45deg, var(--_l)),
+    top var(--_g) no-repeat space, left var(--_g) space no-repeat;
+}
