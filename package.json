@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --fix"
+    "lint": "next lint --fix",
+    "deploy": "firebase deploy --only hosting"
   },
   "dependencies": {
     "@types/node": "^20.10.2",

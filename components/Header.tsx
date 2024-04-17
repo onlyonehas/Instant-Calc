@@ -4,10 +4,10 @@ import {
   getAuth,
   signInWithPopup,
   signOut,
-} from "firebase/auth";
-import { app } from "../pages/_document";
-import { DarkMode } from "./DarkMode";
-import { Profile } from "./Profile";
+} from 'firebase/auth';
+import { app } from '../pages/_document';
+import { DarkMode } from './DarkMode';
+import { Profile } from './Profile';
 
 type Header = {
   user: User | null;
@@ -29,7 +29,7 @@ const SignInButton = () => {
     <button
       onClick={signInWithGoogle}
       type="button"
-      className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 me-4"
+      className="py-2 px-2.5 md:me-4 md:px-5 md:py-2.5 text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm text-center inline-flex items-center dark:focus:ring-[#4285F4]/55"
     >
       <svg
         className="w-4 h-4 me-2"
@@ -79,7 +79,7 @@ export const Header = ({ user, mode, toggleDarkMode }: Header) => {
           <a href="#" className="flex items-center">
             <img
               src="/ic-transparent.png"
-              className="mr-20 md:h-16"
+              className="mr-20 h-8 md:h-16"
               alt="Instant Calc Logo"
             />
           </a>

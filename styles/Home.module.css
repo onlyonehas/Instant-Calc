@@ -49,7 +49,7 @@
 
 .futuristicTextareaLight{
   width: 100%;
-  min-height: 440px;
+  min-height: inherit;
   padding: 2vw;
   font-size: 2vw;
   background-color: #dedede;
@@ -62,7 +62,7 @@
 
 .futuristicTextarea {
   width: 100%;
-  min-height: 440px;
+  min-height: 50vmax;
   padding: 2vw;
   font-size: 2vw;
   background-color: #0e0e13;

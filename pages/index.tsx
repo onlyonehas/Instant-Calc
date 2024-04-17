@@ -1,15 +1,15 @@
-import { Header } from "@/components/Header";
-import { useCalculations } from "@/hooks/useCalculations";
-import { useCustomAuth } from "@/hooks/useCustomAuth";
-import "dotenv/config";
-import { User } from "firebase/auth";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import "react-quill/dist/quill.snow.css";
-import "tailwindcss/tailwind.css";
-import { evaluateExpression } from "../helpers/calculate";
-import { getDaysLeft } from "../helpers/paydate";
-import { VariableMap } from "../helpers/sharedTypes";
-import styles from "../styles/Home.module.css";
+import { Header } from '@/components/Header';
+import { useCalculations } from '@/hooks/useCalculations';
+import { useCustomAuth } from '@/hooks/useCustomAuth';
+import 'dotenv/config';
+import { User } from 'firebase/auth';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import 'react-quill/dist/quill.snow.css';
+import 'tailwindcss/tailwind.css';
+import { evaluateExpression } from '../helpers/calculate';
+import { getDaysLeft } from '../helpers/paydate';
+import { VariableMap } from '../helpers/sharedTypes';
+import styles from '../styles/Home.module.css';
 
 const initialInput = `# Example Heading
 //comment: 300
@@ -55,8 +55,8 @@ export default function Home() {
   }, [input]);
 
   const variables: VariableMap = {};
-  let newOutput = "";
-  let customOutput = "";
+  let newOutput = '';
+  let customOutput = '';
 
   const keywordValues = {
     tempSum: 0,
@@ -73,17 +73,17 @@ export default function Home() {
 
   // TODO: use regex, refactor code to avoid repetition and unnecessary re-rendering
   const handleInput = useCallback(() => {
-    const lines = input?.split("\n");
+    const lines = input?.split('\n');
 
     lines?.forEach((line) => {
       const trimmedLine = line.trim();
       let result: number = 0;
 
-      if (trimmedLine.startsWith("#") || trimmedLine.startsWith("//")) {
+      if (trimmedLine.startsWith('#') || trimmedLine.startsWith('//')) {
         customOutput = `-`;
-      } else if (trimmedLine.includes(":")) {
+      } else if (trimmedLine.includes(':')) {
         const [name, expression] = trimmedLine
-          .split(":")
+          .split(':')
           .map((item) => item.trim().toLowerCase());
         const { evaluatedResult, hasCustomOutput } = evaluateExpression({
           expression,
@@ -93,11 +93,11 @@ export default function Home() {
         result = evaluatedResult;
         customOutput = hasCustomOutput;
         variables[name] = result;
-      } else if (trimmedLine.includes("=")) {
+      } else if (trimmedLine.includes('=')) {
         const [name, expression] = trimmedLine
-          .split("=")
-          .map((item) => item.trim().replace(/\,/g, "").toLowerCase());
-        if (name === "monthlypaydate") {
+          .split('=')
+          .map((item) => item.trim().replace(/\,/g, '').toLowerCase());
+        if (name === 'monthlypaydate') {
           const monthlyPayDate = Number(expression);
           customOutput = getDaysLeft(monthlyPayDate);
         } else {
@@ -125,7 +125,7 @@ export default function Home() {
       newOutput += `${result ? result : customOutput}\n`;
       keywordValues.tempSum += result;
       keywordValues.tempPrev = result;
-      customOutput = "-";
+      customOutput = '-';
     });
     // let storedOutput: string | null = ""
     // if (typeof window !== "undefined" && window.localStorage) {
@@ -139,15 +139,19 @@ export default function Home() {
   }, [input]);
 
   const textAreaStyle = mode
-    ? styles["futuristicTextareaLight"]
-    : styles["futuristicTextarea"];
+    ? styles['futuristicTextareaLight']
+    : styles['futuristicTextarea'];
 
   const textAreaOutputStyle = mode
-    ? styles["textareaOutputLight"]
-    : styles["textareaOutput"];
+    ? styles['textareaOutputLight']
+    : styles['textareaOutput'];
 
   return (
-    <div className={mode ? "light max-h-full" : "dark max-h-full"}>
+    <div
+      className={
+        mode ? 'light max-h-full max-w-full' : 'dark max-h-full max-w-full'
+      }
+    >
       <div className={styles.container}>
         <Header user={user} mode={mode} toggleDarkMode={toggleDarkMode} />
         <h1 className={styles.title}>
@@ -164,16 +168,16 @@ export default function Home() {
       </button>
 
       <div className={styles.notepad}>
-        <div className={styles["notepadInputContainer"]}>
+        <div className={styles['notepadInputContainer']}>
           <textarea
-            value={input || ""}
+            value={input || ''}
             onChange={handleInputChange}
             placeholder="Type your calculations here..."
-            className={`${textAreaStyle} ${styles["textareaInput"]}`}
+            className={`${textAreaStyle} ${styles['textareaInput']}`}
           />
         </div>
         {output && (
-          <div className={styles["notepadOutputContainer"]}>
+          <div className={styles['notepadOutputContainer']}>
             <textarea
               readOnly
               value={output}
