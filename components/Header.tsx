@@ -52,6 +52,7 @@ const SignInButton = () => {
 const SignOutButton = ({ user }: Profile) => {
   const signOutUser = () => {
     const auth = getAuth(app);
+
     signOut(auth)
       .then(() => {})
       .catch((error) => {

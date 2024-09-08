@@ -50,12 +50,10 @@
 .futuristicTextareaLight{
   width: 100%;
   min-height: 50vmax;
-  padding: 2vw;
   font-size: 2vw;
   background-color: #dedede;
   color: rgb(0, 0, 0);
   border: none;
-  border-radius: 10px;
   outline: none;
   resize: vertical;
 }
@@ -63,12 +61,10 @@
 .futuristicTextarea {
   width: 100%;
   min-height: 50vmax;
-  padding: 2vw;
   font-size: 2vw;
   background-color: #0e0e13;
   color: whitesmoke;
   border: none;
-  border-radius: 10px;
   outline: none;
   resize: vertical;
 }
@@ -79,14 +75,11 @@
 
 .textareaOutputLight {
   color: green;
-  border-left: black;
-  border-style: groove
 }
 
 .textareaOutput {
   color: greenyellow;
   border-left: black;
-  border-style: groove
 }
 
 /* Media query for mobile devices */
@@ -94,6 +87,13 @@
 
   .futuristicTextarea,
   .textareaOutput {
+    font-size: 4vw;
+    padding: 5vw;
+    text-wrap: nowrap;
+  }
+
+  .futuristicTextareaLight,
+  .textareaOutputLight {
     font-size: 4vw;
     padding: 5vw;
     text-wrap: nowrap;

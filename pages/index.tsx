@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { Loader } from '@/components/Loader';
+import { PopUpModal } from '@/components/PopUpModal';
 import { useCalculations } from '@/hooks/useCalculations';
 import { useCustomAuth } from '@/hooks/useCustomAuth';
 import 'dotenv/config';
@@ -148,11 +149,7 @@ export default function Home() {
     : styles['textareaOutput'];
 
   return (
-    <div
-      className={
-        mode ? 'light max-h-full max-w-full' : 'dark max-h-full max-w-full'
-      }
-    >
+    <div className={mode ? 'light' : 'dark'}>
       <div className={styles.container}>
         <Header user={user} mode={mode} toggleDarkMode={toggleDarkMode} />
         <h1 className={styles.title}>
@@ -160,13 +157,18 @@ export default function Home() {
           <i>Calc</i>
         </h1>
       </div>
-      {isLoading && <Loader />}
-      <button
-        onClick={saveToDatabase}
-        className="text-white bg-[#1b722a] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 mb-2"
-      >
-        Save
-      </button>
+      <div>
+        {isLoading && <Loader />}
+        {user && (
+          <button
+            onClick={saveToDatabase}
+            className="text-white bg-[#1b722a] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 mb-2"
+          >
+            Save
+          </button>
+        )}
+      </div>
+      <PopUpModal />
 
       <div className={styles.notepad}>
         <div className={styles['notepadInputContainer']}>

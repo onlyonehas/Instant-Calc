@@ -1,5 +1,5 @@
-import { User } from "firebase/auth";
-import styles from "../styles/Profile.module.css";
+import { User } from 'firebase/auth';
+import styles from '../styles/Profile.module.css';
 
 export type Profile = {
   user: User | null;
@@ -7,7 +7,7 @@ export type Profile = {
 
 export const Profile = ({ user }: Profile) => {
   const displayName = user?.displayName;
-  const imgSrc = user?.photoURL || "";
+  const imgSrc = user?.photoURL || '';
 
   if (user)
     return (
@@ -17,7 +17,7 @@ export const Profile = ({ user }: Profile) => {
           src={imgSrc}
           alt="Profile Picture"
         />
-        <span className=" px-2.5  dark:text-white">{displayName}</span>
+        <span className="px-1.5  dark:text-white">{displayName}</span>
       </>
     );
 };

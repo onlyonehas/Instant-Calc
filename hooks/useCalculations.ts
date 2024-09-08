@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { get, off, ref, set, update } from 'firebase/database';
 import { database } from '@/pages/_document';
 import { User } from 'firebase/auth';
+import { get, off, ref, set, update } from 'firebase/database';
+import { useEffect, useState } from 'react';
 
 interface Calculation {
   input: string;
@@ -18,7 +18,7 @@ interface UseCalculationsResult {
 
 export const useCalculations = (user: User | null): UseCalculationsResult => {
   const [calculations, setCalculations] = useState<Calculation | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [calculationsRef, setCalculationsRef] = useState<any>(null);
   const [hasFetchedCalculations, setHasFetchedCalculations] = useState(false);
@@ -65,7 +65,7 @@ export const useCalculations = (user: User | null): UseCalculationsResult => {
         if (!calculations) {
           await set(calculationsRef, { input, output });
         } else {
-          const res = await update(calculationsRef, { input, output })
+          await update(calculationsRef, { input, output })
         }
       }
     } catch (error) {
