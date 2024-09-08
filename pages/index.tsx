@@ -1,4 +1,5 @@
 import { Header } from '@/components/Header';
+import { Loader } from '@/components/Loader';
 import { useCalculations } from '@/hooks/useCalculations';
 import { useCustomAuth } from '@/hooks/useCustomAuth';
 import 'dotenv/config';
@@ -22,7 +23,7 @@ Total=sum-variable`;
 
 export default function Home() {
   const user: User | null = useCustomAuth();
-  const { calculations, saveCalculations } = useCalculations(user);
+  const { calculations, saveCalculations, isLoading } = useCalculations(user);
   const [mode, toggleDarkMode] = useState(false);
   const [input, setInput] = useState<string>(initialInput);
   const [output, setOutput] = useState<string | null>();
@@ -159,7 +160,7 @@ export default function Home() {
           <i>Calc</i>
         </h1>
       </div>
-
+      {isLoading && <Loader />}
       <button
         onClick={saveToDatabase}
         className="text-white bg-[#1b722a] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 mb-2"

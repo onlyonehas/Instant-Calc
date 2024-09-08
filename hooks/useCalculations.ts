@@ -78,4 +78,3 @@ export const useCalculations = (user: User | null): UseCalculationsResult => {
   return { calculations, saveCalculations, getCalculations, isLoading, error };
 }
 
-
