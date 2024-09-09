@@ -13,6 +13,17 @@ type Header = {
   user: User | null;
   mode: boolean;
   toggleDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleModal: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export const signOutGoogle = () => {
+  const auth = getAuth(app);
+
+  signOut(auth)
+    .then(() => {})
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
 const SignInButton = () => {
@@ -49,22 +60,17 @@ const SignInButton = () => {
   );
 };
 
-const SignOutButton = ({ user }: Profile) => {
-  const signOutUser = () => {
-    const auth = getAuth(app);
-
-    signOut(auth)
-      .then(() => {})
-      .catch((error) => {
-        console.error(error);
-      });
-  };
+interface SignOutButtonProps {
+  user: User | null;
+  toggleModal: React.Dispatch<React.SetStateAction<boolean>>;
+}
+const SignOutButton: React.FC<SignOutButtonProps> = ({ user, toggleModal }) => {
   return (
     <>
       <Profile user={user} />
       <button
-        onClick={signOutUser}
-        className="text-white bg-[#dd3838] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 me-2"
+        onClick={() => toggleModal(true)}
+        className="text-white bg-[#dd3838] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-3 py-2 mx-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 me-2"
       >
         Sign Out
       </button>
@@ -72,25 +78,31 @@ const SignOutButton = ({ user }: Profile) => {
   );
 };
 
-export const Header = ({ user, mode, toggleDarkMode }: Header) => {
+export const Header = ({ user, mode, toggleDarkMode, toggleModal }: Header) => {
   return (
     <header>
       <nav className="bg-white border-gray-200 px-2.5 pt-0 lg:px-6 py-2.5 md:h-16 dark:bg-gray-800">
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-          <a href="#" className="flex items-center">
-            <img
-              src="/ic-transparent.png"
-              className="mr-20 h-8 md:h-16"
-              alt="Instant Calc Logo"
-            />
-          </a>
-          <div className="flex items-center lg:order-3">
-            {!user ? <SignInButton /> : <SignOutButton user={user} />}
+          <div>
+            <a href="#">
+              <img
+                src="/ic-transparent.png"
+                className="h-16 lg:mr-10"
+                alt="Instant Calc Logo"
+              />
+            </a>
+          </div>
+          <div className="flex items-center lg:order-2">
+            {!user ? (
+              <SignInButton />
+            ) : (
+              <SignOutButton user={user} toggleModal={toggleModal} />
+            )}
             <DarkMode mode={mode} toggleDarkMode={toggleDarkMode} />
             <button
               data-collapse-toggle="mobile-menu-2"
               type="button"
-              className="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+              className="inline-flex items-center p-2 mx-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
               aria-controls="mobile-menu-2"
               aria-expanded="false"
             >

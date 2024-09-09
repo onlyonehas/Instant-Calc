@@ -17,7 +17,9 @@ export const Profile = ({ user }: Profile) => {
           src={imgSrc}
           alt="Profile Picture"
         />
-        <span className="px-1.5  dark:text-white">{displayName}</span>
+        <span className="hidden md:block mx-2  dark:text-white">
+          {displayName}
+        </span>
       </>
     );
 };

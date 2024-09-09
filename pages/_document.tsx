@@ -1,8 +1,8 @@
-import 'dotenv/config'
-import Document, { Html, Head, Main, NextScript } from 'next/document';
-import { getApp, getApps, initializeApp } from "firebase/app";
+import 'dotenv/config';
+import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
+import Document, { Head, Html, Main, NextScript } from 'next/document';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASEAPIKEY,
@@ -12,7 +12,7 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_MESSAGESENDERID,
   appId: process.env.NEXT_PUBLIC_FIREBASEAPPID,
   measurementId: process.env.NEXT_PUBLIC_MEASUREMENTID,
-  databaseURL: process.env.NEXT_PUBLIC_DATABASEDOMAIN
+  databaseURL: process.env.NEXT_PUBLIC_DATABASEDOMAIN,
 };
 
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -28,7 +28,15 @@ export default class MyDocument extends Document {
     return (
       <Html>
         <Head />
-        <body>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>{`
+            html, body {
+              height: 100%;
+              margin: 0;
+              padding: 0;
+            }
+          `}</style>
+        <body className="h-full min-h-screen flex flex-col">
           <Main />
           <NextScript />
         </body>

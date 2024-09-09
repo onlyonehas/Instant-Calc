@@ -27,6 +27,7 @@ export default function Home() {
   const { calculations, saveCalculations, isLoading } = useCalculations(user);
   const [mode, toggleDarkMode] = useState(false);
   const [input, setInput] = useState<string>(initialInput);
+  const [showModal, toggleModal] = useState(false);
   const [output, setOutput] = useState<string | null>();
   const [, setSum] = useState(0);
   const [, setPrev] = useState(0);
@@ -149,9 +150,20 @@ export default function Home() {
     : styles['textareaOutput'];
 
   return (
-    <div className={mode ? 'light' : 'dark'}>
+    <div
+      className={
+        mode
+          ? 'light flex flex-col h-full min-h-screen'
+          : 'dark flex flex-col h-full min-h-screen'
+      }
+    >
       <div className={styles.container}>
-        <Header user={user} mode={mode} toggleDarkMode={toggleDarkMode} />
+        <Header
+          user={user}
+          mode={mode}
+          toggleDarkMode={toggleDarkMode}
+          toggleModal={toggleModal}
+        />
         <h1 className={styles.title}>
           Instant
           <i>Calc</i>
@@ -168,8 +180,7 @@ export default function Home() {
           </button>
         )}
       </div>
-      <PopUpModal />
-
+      {showModal && <PopUpModal toggleModal={toggleModal} />}
       <div className={styles.notepad}>
         <div className={styles['notepadInputContainer']}>
           <textarea
