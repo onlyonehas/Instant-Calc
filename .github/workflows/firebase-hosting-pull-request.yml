@@ -7,6 +7,7 @@ jobs:
   build_and_preview:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
+    environment: firebase
     env:
       NEXT_PUBLIC_FIREBASEAPIKEY: ${{ secrets.NEXT_PUBLIC_FIREBASEAPIKEY }}
       NEXT_PUBLIC_FIREBASEAUTHDOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASEAUTHDOMAIN }}
@@ -23,5 +24,4 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_INSTANT_CALC }}
-          NEXT_PUBLIC_FIREBASEAPIKEY: ${{ secrets.NEXT_PUBLIC_FIREBASEAPIKEY }}
           projectId: instant-calc

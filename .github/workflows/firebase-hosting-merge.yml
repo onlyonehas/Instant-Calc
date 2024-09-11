@@ -9,6 +9,7 @@ name: Deploy to Firebase Hosting on merge
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    environment: firebase
     env:
       NEXT_PUBLIC_FIREBASEAPIKEY: ${{ secrets.NEXT_PUBLIC_FIREBASEAPIKEY }}
       NEXT_PUBLIC_FIREBASEAUTHDOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASEAUTHDOMAIN }}
@@ -25,7 +26,6 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_INSTANT_CALC }}
-          NEXT_PUBLIC_FIREBASEAPIKEY: ${{ secrets.NEXT_PUBLIC_FIREBASEAPIKEY }}
           channelId: live
           projectId: instant-calc
         env:
