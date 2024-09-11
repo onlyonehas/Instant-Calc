@@ -5,26 +5,27 @@ name: Deploy to Firebase Hosting on merge
 'on':
   push:
     branches:
-      - master
+      - main
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    env:  
-      NEXT_PUBLIC_FIREBASEAPIKEY: '${{ secrets.NEXT_PUBLIC_FIREBASEAPIKEY }}'
-      NEXT_PUBLIC_FIREBASEAUTHDOMAIN: '${{ secrets.NEXT_PUBLIC_FIREBASEAUTHDOMAIN }}' 
-      NEXT_PUBLIC_FIREBASEPROJECTID: '${{ secrets.NEXT_PUBLIC_FIREBASEPROJECTID }}' 
-      NEXT_PUBLIC_FIREBASESTORAGEBUCKET: '${{ secrets.NEXT_PUBLIC_FIREBASESTORAGEBUCKET }}' 
-      NEXT_PUBLIC_MESSAGESENDERID: '${{ secrets.NEXT_PUBLIC_MESSAGESENDERID }}' 
-      NEXT_PUBLIC_FIREBASEAPPID: '${{ secrets.NEXT_PUBLIC_FIREBASEAPPID }}'
-      NEXT_PUBLIC_MEASUREMENTID: '${{ secrets.NEXT_PUBLIC_MEASUREMENTID }}'
-      NEXT_PUBLIC_DATABASEDOMAIN: '${{ secrets.NEXT_PUBLIC_DATABASEDOMAIN }}'
+    env:
+      NEXT_PUBLIC_FIREBASEAPIKEY: ${{ secrets.NEXT_PUBLIC_FIREBASEAPIKEY }}
+      NEXT_PUBLIC_FIREBASEAUTHDOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASEAUTHDOMAIN }}
+      NEXT_PUBLIC_FIREBASEPROJECTID: ${{ secrets.NEXT_PUBLIC_FIREBASEPROJECTID }}
+      NEXT_PUBLIC_FIREBASESTORAGEBUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASESTORAGEBUCKET }}
+      NEXT_PUBLIC_MESSAGESENDERID: ${{ secrets.NEXT_PUBLIC_MESSAGESENDERID }}
+      NEXT_PUBLIC_FIREBASEAPPID: ${{ secrets.NEXT_PUBLIC_FIREBASEAPPID }}
+      NEXT_PUBLIC_MEASUREMENTID: ${{ secrets.NEXT_PUBLIC_MEASUREMENTID }}
+      NEXT_PUBLIC_DATABASEDOMAIN: ${{ secrets.NEXT_PUBLIC_DATABASEDOMAIN }}
     steps:
       - uses: actions/checkout@v3
       - run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_INSTANT_CALC }}'
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_INSTANT_CALC }}
+          NEXT_PUBLIC_FIREBASEAPIKEY: ${{ secrets.NEXT_PUBLIC_FIREBASEAPIKEY }}
           channelId: live
           projectId: instant-calc
         env:
