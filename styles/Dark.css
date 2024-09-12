@@ -1,8 +1,8 @@
 :root {
-  --darkbg: #251D29;
-  --darkt: #7b0c00;
+  --darkbg: #251d29;
+  --darkt: #fff;
   --lightbg: #fff;
-  --lightt: #D43370;
+  --lightt: #403c3d;
 
   --toggleHeight: 16em;
   --toggleWidth: 30em;
@@ -10,20 +10,20 @@
 
   --bgColor--night: #423966;
   --toggleBtn-bgColor--night: var(--bgColor--night);
-  --mooncolor: #D9FBFF;
+  --mooncolor: #d9fbff;
   --bgColor--day: #9ee3fb;
   --toggleBtn-bgColor--day: var(--bgColor--day);
 }
 
 .dark {
-  transition: all .2s ease-in-out;
+  transition: all 0.2s ease-in-out;
   background: var(--darkbg);
   color: var(--darkt);
   text-align: center;
 }
 
 .light {
-  transition: all .2s ease-in-out;
+  transition: all 0.2s ease-in-out;
   background: var(--lightbg);
   color: var(--lightt);
   text-align: center;
@@ -31,7 +31,6 @@
 
 .tdnn {
   margin: 0 auto;
-  /*change size of toggle with font-size*/
   font-size: 13%;
   position: relative;
   height: var(--toggleHeight);
@@ -42,7 +41,7 @@
 }
 
 .day {
-  background: #FFBF71;
+  background: #ffbf71;
 }
 
 .moon {
@@ -50,7 +49,6 @@
   display: block;
   border-radius: 50%;
   transition: all 400ms ease-in-out;
-
   top: 3em;
   left: 3em;
   transform: rotate(-75deg);
@@ -76,7 +74,8 @@
   width: 7em;
   height: 7em;
   background: #fff;
-  box-shadow: 3em 3em 0 5em #fff inset,
+  box-shadow:
+    3em 3em 0 5em #fff inset,
     0 -5em 0 -2.7em #fff,
     3.5em -3.5em 0 -3em #fff,
     5em 0 0 -2.7em #fff,

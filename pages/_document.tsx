@@ -1,8 +1,8 @@
-import 'dotenv/config';
-import { getApp, getApps, initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getDatabase } from 'firebase/database';
-import Document, { Head, Html, Main, NextScript } from 'next/document';
+import "dotenv/config";
+import { getApp, getApps, initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getDatabase } from "firebase/database";
+import Document, { Head, Html, Main, NextScript } from "next/document";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASEAPIKEY,

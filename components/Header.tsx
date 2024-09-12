@@ -1,24 +1,24 @@
+import { useCustomAuth } from "@/hooks/useCustomAuth";
 import {
   GoogleAuthProvider,
   User,
   getAuth,
   signInWithPopup,
   signOut,
-} from 'firebase/auth';
-import { app } from '../pages/_document';
-import { DarkMode } from './DarkMode';
-import { Profile } from './Profile';
+} from "firebase/auth";
+import Link from "next/link";
+import { app } from "../pages/_document";
+import { DarkMode } from "./DarkMode";
+import { Profile } from "./Profile";
 
 type Header = {
-  user: User | null;
-  mode: boolean;
+  lightMode: boolean;
   toggleDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
   toggleModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const signOutGoogle = () => {
   const auth = getAuth(app);
-
   signOut(auth)
     .then(() => {})
     .catch((error) => {
@@ -78,19 +78,21 @@ const SignOutButton: React.FC<SignOutButtonProps> = ({ user, toggleModal }) => {
   );
 };
 
-export const Header = ({ user, mode, toggleDarkMode, toggleModal }: Header) => {
+export const Header = ({ lightMode, toggleDarkMode, toggleModal }: Header) => {
+  const user: User | null = useCustomAuth();
+
   return (
     <header>
       <nav className="bg-white border-gray-200 px-2.5 pt-0 lg:px-6 py-2.5 md:h-16 dark:bg-gray-800">
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
           <div>
-            <a href="#">
+            <Link href="/">
               <img
                 src="/ic-transparent.png"
                 className="h-16 lg:mr-10"
                 alt="Instant Calc Logo"
               />
-            </a>
+            </Link>
           </div>
           <div className="flex items-center lg:order-2">
             {!user ? (
@@ -98,7 +100,7 @@ export const Header = ({ user, mode, toggleDarkMode, toggleModal }: Header) => {
             ) : (
               <SignOutButton user={user} toggleModal={toggleModal} />
             )}
-            <DarkMode mode={mode} toggleDarkMode={toggleDarkMode} />
+            <DarkMode lightMode={lightMode} toggleDarkMode={toggleDarkMode} />
             <button
               data-collapse-toggle="mobile-menu-2"
               type="button"
@@ -139,17 +141,17 @@ export const Header = ({ user, mode, toggleDarkMode, toggleModal }: Header) => {
           >
             <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/"
                   className="block py-2 pr-4 pl-3 text-white rounded bg-blue-700 lg:bg-transparent lg:text-blue-700 lg:p-0 dark:text-white"
                   aria-current="page"
                 >
                   Home
-                </a>
+                </Link>
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/about"
                   className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                 >
                   About
@@ -165,7 +167,7 @@ export const Header = ({ user, mode, toggleDarkMode, toggleModal }: Header) => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/new-features"
                   className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                 >
                   Feature Request

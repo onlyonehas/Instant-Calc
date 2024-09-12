@@ -1,8 +1,11 @@
-import './globals.css';
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: 'Instant Calculation',
-  description: 'Natural language calculator',
+  title: "Instant Calculation",
+  description: "Natural language calculator",
 };
 
 export default function RootLayout({
@@ -12,7 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">{children}</body>
+      <head></head>
+      <body className={(inter.className, "min-h-screen flex flex-col")}>
+        {children}
+      </body>
     </html>
   );
 }
