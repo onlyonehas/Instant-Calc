@@ -72,6 +72,22 @@ export default function About() {
   const scrollToRef = (ref: React.RefObject<HTMLDivElement>) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
   };
+  const buttonVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 24,
+      },
+    },
+    hover: {
+      scale: 1.05,
+      transition: { duration: 0.2 },
+    },
+  };
 
   return (
     <>
@@ -125,10 +141,10 @@ export default function About() {
         </motion.div>
         <motion.button
           onClick={() => scrollToRef(aboutRef)}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full p-2 transition-all duration-300 ease-in-out"
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full p-2 transition-all duration-500 ease-in-out"
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.3 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
         >
           <ChevronDown className="w-6 h-6" />
         </motion.button>
@@ -138,7 +154,7 @@ export default function About() {
         className="min-h-screen bg-gray-900 p-8 flex items-center"
       >
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className="text-3xl font-bold text-white mb-4 text-center">
             About Instant Calc 🧮
           </h2>
           <p className="text-gray-300 mb-4">
@@ -153,12 +169,19 @@ export default function About() {
             someone who loves efficient problem-solving, Instant Calc is your
             ultimate companion for all calculation needs.
           </p>
-          <button
-            onClick={() => scrollToRef(featuresRef)}
-            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            variants={buttonVariants}
           >
-            Explore Features <ChevronDown className="ml-2 w-4 h-4" />
-          </button>
+            <button
+              onClick={() => scrollToRef(featuresRef)}
+              className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center mx-auto"
+            >
+              Explore Features <ChevronDown className="ml-2 w-4 h-4" />
+            </button>
+          </motion.div>
         </div>
       </div>
       <div
@@ -166,7 +189,7 @@ export default function About() {
         className="min-h-screen bg-gray-800 p-8 flex items-center"
       >
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <h2 className="text-3xl font-bold text-center text-white mb-4">
             Key Features ✨
           </h2>
           <ul className="list-disc list-inside text-gray-300 space-y-2 mb-4">
@@ -195,12 +218,19 @@ export default function About() {
               devices and screen sizes.
             </li>
           </ul>
-          <button
-            onClick={() => scrollToRef(usageRef)}
-            className="mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            variants={buttonVariants}
           >
-            How to Use <ChevronDown className="ml-2 w-4 h-4" />
-          </button>
+            <button
+              onClick={() => scrollToRef(usageRef)}
+              className="mt-8 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center mx-auto"
+            >
+              How to Use <ChevronDown className="ml-2 w-4 h-4" />
+            </button>
+          </motion.div>
         </div>
       </div>
       <div
@@ -208,7 +238,9 @@ export default function About() {
         className="min-h-screen bg-gray-900 p-8 flex items-center"
       >
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-4">Usage Guide 📘</h2>
+          <h2 className="text-3xl text-center font-bold text-white mb-4">
+            Usage Guide 📘
+          </h2>
           <ol className="list-decimal list-inside text-gray-300 space-y-2 mb-4">
             <li>Type your calculations in the input textarea.</li>
             <li>
@@ -231,12 +263,19 @@ export default function About() {
             exploring its capabilities and streamline your calculation process
             today!
           </p>
-          <button
-            onClick={() => scrollToRef(futureWorkRef)}
-            className="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center"
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            variants={buttonVariants}
           >
-            Future Developments <ChevronDown className="ml-2 w-4 h-4" />
-          </button>
+            <button
+              onClick={() => scrollToRef(futureWorkRef)}
+              className="mt-8 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center mx-auto"
+            >
+              Future Developments <ChevronDown className="ml-2 w-4 h-4" />
+            </button>
+          </motion.div>
         </div>
       </div>
       <div
