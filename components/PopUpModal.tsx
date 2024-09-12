@@ -1,10 +1,42 @@
-import { signOutGoogle } from './Header';
+import { signOutGoogle } from "./Header";
 
 interface PopUpModalProps {
   toggleModal: React.Dispatch<React.SetStateAction<boolean>>;
+  type: "signout" | "clearButton";
+  callbackfn?: () => void;
 }
 
-export const PopUpModal: React.FC<PopUpModalProps> = ({ toggleModal }) => {
+export const PopUpModal: React.FC<PopUpModalProps> = ({
+  toggleModal,
+  type,
+  callbackfn,
+}) => {
+  const signOutText = (
+    <div>
+      <p>Are you sure you want to Sign Out?</p>
+      <p>Any unsaved progress will be lost</p>
+    </div>
+  );
+  const clearButtonText = (
+    <div>
+      <p>Are you sure you want to clear all data?</p>
+      <p>This action cannot be undone</p>
+    </div>
+  );
+  const text = type === "signout" ? signOutText : clearButtonText;
+
+  const signOutCallback = () => {
+    toggleModal(false);
+    signOutGoogle();
+  };
+
+  let callback;
+  if (callbackfn) {
+    callback = callbackfn;
+  } else {
+    callback = signOutCallback;
+  }
+
   return (
     <div
       id="popup-modal"
@@ -53,15 +85,14 @@ export const PopUpModal: React.FC<PopUpModalProps> = ({ toggleModal }) => {
               />
             </svg>
             <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-              Are you sure you want to Sign Out? <br />
-              Any unsaved progress will be lost
+              {text}
             </h3>
             <button
               data-modal-hide="popup-modal"
               type="button"
               onClick={() => {
                 toggleModal(false);
-                signOutGoogle();
+                callback();
               }}
               className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
             >

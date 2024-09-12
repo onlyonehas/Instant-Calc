@@ -1,4 +1,3 @@
-
 export const getDaysLeft = (monthlyPayDate: number) => {
   const today: any = new Date();
   const date = today.getDate();
@@ -11,18 +10,18 @@ export const getDaysLeft = (monthlyPayDate: number) => {
 
   const day = new Date(nextPayDate).getDay();
 
-  let minusWeekend = 0
+  let minusWeekend = 0;
   if (day === 6) {
     minusWeekend -= 1;
   } else if (day === 0) {
     minusWeekend -= 2;
   }
 
-  nextPayDate.setDate(nextPayDate.getDate() + minusWeekend)
+  nextPayDate.setDate(nextPayDate.getDate() + minusWeekend);
 
-  const diffInMs = new Date(nextPayDate).valueOf() - new Date().valueOf()
+  const diffInMs = new Date(nextPayDate).valueOf() - new Date().valueOf();
   const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
   // const nextDate = nextPayDate.toLocaleDateString("en-GB")
-  const nextPayMsg = (`Next pay in ${diffInDays} Days`)
+  const nextPayMsg = `Next pay in ${diffInDays} Days`;
   return nextPayMsg;
-}
+};

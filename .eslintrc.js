@@ -4,21 +4,21 @@ module.exports = {
   plugins: ["@typescript-eslint"],
   settings: {
     "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx"]
+      "@typescript-eslint/parser": [".ts", ".tsx"],
     },
     "import/resolver": {
-      typescript: {}
-    }
+      typescript: {},
+    },
   },
   rules: {
     "react/jsx-filename-extension": [
       2,
-      { extensions: [".js", ".jsx", ".ts", ".tsx"] }
+      { extensions: [".js", ".jsx", ".ts", ".tsx"] },
     ],
     "import/no-extraneous-dependencies": [
       2,
-      { devDependencies: ["**/test.tsx", "**/test.ts"] }
+      { devDependencies: ["**/test.tsx", "**/test.ts"] },
     ],
-    "@typescript-eslint/indent": [2, 2]
-  }
+    "@typescript-eslint/indent": [2, 2],
+  },
 };

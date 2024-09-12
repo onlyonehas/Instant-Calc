@@ -1,3 +1,3 @@
 export interface VariableMap {
-    [name: string]: number;
+  [name: string]: number;
 }

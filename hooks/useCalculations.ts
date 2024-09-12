@@ -1,7 +1,8 @@
-import { database } from '@/pages/_document';
-import { User } from 'firebase/auth';
-import { get, off, ref, set, update } from 'firebase/database';
-import { useEffect, useState } from 'react';
+import { database } from "@/pages/_document";
+import { User } from "firebase/auth";
+import { get, off, ref, set, update } from "firebase/database";
+import { useEffect, useState } from "react";
+import { useCustomAuth } from "./useCustomAuth";
 
 interface Calculation {
   input: string;
@@ -16,7 +17,8 @@ interface UseCalculationsResult {
   error: Error | null;
 }
 
-export const useCalculations = (user: User | null): UseCalculationsResult => {
+export const useCalculations = (): UseCalculationsResult => {
+  const user: User | null = useCustomAuth();
   const [calculations, setCalculations] = useState<Calculation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -41,7 +43,6 @@ export const useCalculations = (user: User | null): UseCalculationsResult => {
     }
   }, [hasFetchedCalculations, calculationsRef]);
 
-
   const getCalculations = async () => {
     try {
       setIsLoading(true);
@@ -65,7 +66,7 @@ export const useCalculations = (user: User | null): UseCalculationsResult => {
         if (!calculations) {
           await set(calculationsRef, { input, output });
         } else {
-          await update(calculationsRef, { input, output })
+          await update(calculationsRef, { input, output });
         }
       }
     } catch (error) {
@@ -76,5 +77,4 @@ export const useCalculations = (user: User | null): UseCalculationsResult => {
   };
 
   return { calculations, saveCalculations, getCalculations, isLoading, error };
-}
-
+};
