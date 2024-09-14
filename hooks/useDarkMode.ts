@@ -36,6 +36,7 @@ export const useDarkMode = (
   }, [hasFetchedTheme, databaseRef]);
 
   useEffect(() => {
+    document.documentElement.classList.toggle("dark", mode);
     saveTheme(mode);
   }, [mode]);
 
@@ -43,6 +44,7 @@ export const useDarkMode = (
     try {
       const snapshot = await get(databaseRef);
       const data = snapshot.val();
+      console.log({ data });
       callback(data);
     } catch (error) {
       console.error(error);
@@ -52,6 +54,8 @@ export const useDarkMode = (
   const saveTheme = async (mode: boolean) => {
     try {
       if (databaseRef) {
+        console.log({ mode });
+
         await set(databaseRef, mode);
       }
     } catch (error) {
