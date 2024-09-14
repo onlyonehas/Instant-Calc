@@ -15,7 +15,7 @@ import "tailwindcss/tailwind.css";
 import { evaluateExpression } from "../helpers/calculate";
 import { getDaysLeft } from "../helpers/paydate";
 import { VariableMap } from "../helpers/sharedTypes";
-import "../styles/dark.css";
+import "../styles/Dark.css";
 
 const initialInput = `# Example Heading
 //comment: 300
