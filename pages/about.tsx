@@ -1,8 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import {
+  ChevronDown,
+  LucideChevronsDown,
+  LucideChevronsRight,
+} from "lucide-react";
 import Head from "next/head";
+import router from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 const prefix = "Instant ";
@@ -151,6 +156,7 @@ export default function About() {
       </div>
       <div
         ref={aboutRef}
+        id="about"
         className="min-h-screen bg-gray-900 p-8 flex items-center"
       >
         <div className="max-w-3xl mx-auto">
@@ -179,13 +185,14 @@ export default function About() {
               onClick={() => scrollToRef(featuresRef)}
               className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center mx-auto"
             >
-              Explore Features <ChevronDown className="ml-2 w-4 h-4" />
+              Explore Features <LucideChevronsDown className="ml-2 w-4 h-4" />
             </button>
           </motion.div>
         </div>
       </div>
       <div
         ref={featuresRef}
+        id="features"
         className="min-h-screen bg-gray-800 p-8 flex items-center"
       >
         <div className="max-w-3xl mx-auto">
@@ -228,13 +235,14 @@ export default function About() {
               onClick={() => scrollToRef(usageRef)}
               className="mt-8 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center mx-auto"
             >
-              How to Use <ChevronDown className="ml-2 w-4 h-4" />
+              How to Use <LucideChevronsDown className="ml-2 w-4 h-4" />
             </button>
           </motion.div>
         </div>
       </div>
       <div
         ref={usageRef}
+        id="usage"
         className="min-h-screen bg-gray-900 p-8 flex items-center"
       >
         <div className="max-w-3xl mx-auto">
@@ -273,12 +281,14 @@ export default function About() {
               onClick={() => scrollToRef(futureWorkRef)}
               className="mt-8 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center mx-auto"
             >
-              Future Developments <ChevronDown className="ml-2 w-4 h-4" />
+              Future Developments{" "}
+              <LucideChevronsDown className="ml-2 w-4 h-4" />
             </button>
           </motion.div>
         </div>
       </div>
       <div
+        id="future-work"
         ref={futureWorkRef}
         className="min-h-screen bg-gray-800 p-8 flex items-center"
       >
@@ -316,6 +326,19 @@ export default function About() {
             Stay tuned for these exciting updates that will make Instant Calc
             even more powerful and user-friendly!
           </p>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            whileHover="hover"
+            variants={buttonVariants}
+          >
+            <button
+              onClick={() => router.push("/")}
+              className="mt-8 bg-red-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center mx-auto"
+            >
+              Lets Get Started <LucideChevronsRight className="ml-2 w-4 h-4" />
+            </button>
+          </motion.div>
         </div>
       </div>
     </>

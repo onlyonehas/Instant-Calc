@@ -12,7 +12,7 @@ import { DarkMode } from "./DarkMode";
 import { Profile } from "./Profile";
 
 type Header = {
-  lightMode: boolean;
+  darkMode: boolean;
   toggleDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
   toggleModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -78,7 +78,7 @@ const SignOutButton: React.FC<SignOutButtonProps> = ({ user, toggleModal }) => {
   );
 };
 
-export const Header = ({ lightMode, toggleDarkMode, toggleModal }: Header) => {
+export const Header = ({ darkMode, toggleDarkMode, toggleModal }: Header) => {
   const user: User | null = useCustomAuth();
 
   return (
@@ -100,7 +100,7 @@ export const Header = ({ lightMode, toggleDarkMode, toggleModal }: Header) => {
             ) : (
               <SignOutButton user={user} toggleModal={toggleModal} />
             )}
-            <DarkMode lightMode={lightMode} toggleDarkMode={toggleDarkMode} />
+            <DarkMode darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
             <button
               data-collapse-toggle="mobile-menu-2"
               type="button"
@@ -158,20 +158,20 @@ export const Header = ({ lightMode, toggleDarkMode, toggleModal }: Header) => {
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/about#usage"
                   className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                 >
                   How it works
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/new-features"
                   className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                 >
                   Feature Request
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

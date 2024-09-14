@@ -1,19 +1,19 @@
 import "../styles/Dark.css";
 
 type DarkMode = {
-  lightMode: boolean;
+  darkMode: boolean;
   toggleDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const DarkMode = ({ lightMode, toggleDarkMode }: DarkMode) => {
+export const DarkMode = ({ darkMode, toggleDarkMode }: DarkMode) => {
   return (
     <div
-      className={lightMode ? "tdnn day" : "tdnn"}
+      className={darkMode ? "tdnn" : "tdnn day"}
       onClick={() => {
-        toggleDarkMode(!lightMode);
+        toggleDarkMode(!darkMode);
       }}
     >
-      <div className={lightMode ? "moon sun" : "moon"}></div>
+      <div className={darkMode ? "moon" : "moon sun"}></div>
     </div>
   );
 };

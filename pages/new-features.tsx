@@ -6,7 +6,7 @@ import Head from "next/head";
 import { useState } from "react";
 
 export default function NewFeatures() {
-  const [lightMode, toggleDarkMode] = useState(false);
+  const [darkMode, toggleDarkMode] = useState(false);
   const [singOutModal, toggleSingOutModal] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -36,7 +36,7 @@ export default function NewFeatures() {
         />
       </Head>
       <Header
-        lightMode={lightMode}
+        darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
         toggleModal={toggleSingOutModal}
       ></Header>
@@ -45,7 +45,7 @@ export default function NewFeatures() {
       )}
       <div
         className={`${
-          lightMode ? "light" : "dark"
+          darkMode ? "dark" : "light"
         } flex flex-col items-center justify-center min-h-screen py-10`}
       >
         <div className="max-w-2xl w-full shadow-md rounded-lg p-6">

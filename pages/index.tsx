@@ -1,18 +1,21 @@
+"use client";
+
 import { Header } from "@/components/Header";
 import { Loader } from "@/components/Loader";
 import { PopUpModal } from "@/components/PopUpModal";
 import { useCalculations } from "@/hooks/useCalculations";
 import { useCustomAuth } from "@/hooks/useCustomAuth";
 import { useDarkMode } from "@/hooks/useDarkMode";
-import "dotenv/config";
 import { User } from "firebase/auth";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import "tailwindcss/tailwind.css";
 import { evaluateExpression } from "../helpers/calculate";
 import { getDaysLeft } from "../helpers/paydate";
 import { VariableMap } from "../helpers/sharedTypes";
-import styles from "../styles/Home.module.css";
+import "../styles/Dark.css";
 
 const initialInput = `# Example Heading
 //comment: 300
@@ -23,7 +26,7 @@ food: 250
 Variable = prev*2
 Total=sum-variable`;
 
-export default function Home() {
+export default function Index() {
   const user: User | null = useCustomAuth();
   const { calculations, saveCalculations, isLoading } = useCalculations();
   const [input, setInput] = useState<string>(initialInput);
@@ -31,24 +34,22 @@ export default function Home() {
   const [, setSum] = useState(0);
   const [, setPrev] = useState(0);
 
-  const [lightMode, toggleDarkMode] = useState(false);
-  useDarkMode(lightMode, toggleDarkMode);
+  const [darkMode, setDarkMode] = useState(true);
   const [singOutModal, toggleSingOutModal] = useState(false);
   const [clearButtonModal, toggleClearButtonModal] = useState(false);
 
-  const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(event.target.value);
+  const [notebookName, setNotebookName] = useState("General Expense");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const outputRef = useRef<HTMLTextAreaElement>(null);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prevDarkMode) => !prevDarkMode);
   };
 
-  // useEffect(() => {
-  //   if (typeof window !== 'undefined' && window.localStorage) {
-  //     const userInput = localStorage.getItem('userInput');
-  //     const userOutput = localStorage.getItem('userOutput');
-
-  //     userInput && setInput(userInput);
-  //     userOutput && setOutput(userOutput);
-  //   }
-  // }, []);
+  useDarkMode(darkMode, toggleDarkMode);
 
   useEffect(() => {
     if (calculations) {
@@ -60,6 +61,12 @@ export default function Home() {
   useEffect(() => {
     handleInput();
   }, [input]);
+
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+    }
+  }, [isEditingName]);
 
   const variables: VariableMap = {};
   let newOutput = "";
@@ -87,7 +94,6 @@ export default function Home() {
     toggleClearButtonModal(true);
   };
 
-  // TODO: use regex, refactor code to avoid repetition and unnecessary re-rendering
   const handleInput = useCallback(() => {
     const lines = input?.split("\n");
 
@@ -143,61 +149,162 @@ export default function Home() {
       keywordValues.tempPrev = result;
       customOutput = "-";
     });
-    // let storedOutput: string | null = ""
-    // if (typeof window !== "undefined" && window.localStorage) {
-    //   input && localStorage.setItem("userInput", input);
-    //   newOutput && localStorage.setItem("userOutput", newOutput);
-    //   storedOutput = localStorage?.getItem("userOutput");
-    // }
+
     setOutput(newOutput);
     setSum(keywordValues.tempSum);
     setPrev(keywordValues.tempPrev);
   }, [input]);
 
-  const textAreaStyle = lightMode
-    ? styles["futuristicTextareaLight"]
-    : styles["futuristicTextarea"];
+  const handleScroll = (event: React.UIEvent<HTMLTextAreaElement>) => {
+    if (inputRef.current && outputRef.current) {
+      outputRef.current.scrollTop = event.currentTarget.scrollTop;
+    }
+  };
 
-  const textAreaOutputStyle = lightMode
-    ? styles["textareaOutputLight"]
-    : styles["textareaOutput"];
+  const handleNotebookNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setNotebookName(event.target.value);
+  };
+
+  const handleNotebookNameDoubleClick = () => {
+    setIsEditingName(true);
+  };
+
+  const handleNotebookNameBlur = () => {
+    setIsEditingName(false);
+  };
+
+  const handleNotebookNameKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Enter") {
+      setIsEditingName(false);
+    }
+  };
 
   return (
     <div
-      className={`${
-        lightMode ? "light" : "dark"
-      } flex flex-col h-full min-h-screen`}
+      className={`flex flex-col min-h-screen ${darkMode ? "dark" : "light"}`}
     >
-      <div className={styles.container}>
-        <Header
-          lightMode={lightMode}
-          toggleDarkMode={toggleDarkMode}
-          toggleModal={toggleSingOutModal}
-        />
-        <h1 className={styles.title}>
-          Instant
-          <i>Calc</i>
-        </h1>
-      </div>
-      <div>
+      <Header
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
+        toggleModal={toggleSingOutModal}
+      />
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <motion.h1
+          className="text-5xl md:text-8xl font-bold text-center my-8 text-gray-800 dark:text-white"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+            Instant<i>Calc</i>
+          </span>
+        </motion.h1>
+
         {isLoading && <Loader />}
-        {user && (
-          <button
-            onClick={saveToDatabase}
-            className="text-white bg-[#1c9c3a] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 mb-2"
-          >
-            Save
-          </button>
-        )}
-        {user && (
-          <button
-            onClick={clearButton}
-            className="text-black border border-black  hover:bg-[#ff2727]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-semibold rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 mb-2"
-          >
-            Clear
-          </button>
-        )}
-      </div>
+
+        <motion.div
+          className="bg-yellow-100 dark:bg-gray-800 rounded-t-lg shadow-lg p-4 flex justify-between items-center"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {isEditingName ? (
+            <input
+              ref={nameInputRef}
+              type="text"
+              value={notebookName}
+              onChange={handleNotebookNameChange}
+              onBlur={handleNotebookNameBlur}
+              onKeyDown={handleNotebookNameKeyDown}
+              className="text-xl font-semibold bg-transparent text-gray-800 dark:text-white focus:outline-none border-b-2 border-gray-300 dark:border-gray-600"
+            />
+          ) : (
+            <h2
+              className="text-xl font-semibold text-gray-800 dark:text-white cursor-pointer flex items-center"
+              onDoubleClick={handleNotebookNameDoubleClick}
+            >
+              {notebookName}
+              <Edit2 className="w-4 h-4 ml-2 text-gray-500 dark:text-gray-400" />
+            </h2>
+          )}
+          <div className="flex space-x-2">
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+            >
+              {darkMode ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </button>
+            {user && (
+              <button
+                onClick={saveToDatabase}
+                className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center"
+              >
+                <Save className="w-5 h-5 mr-2" />
+                Save
+              </button>
+            )}
+            {user && (
+              <button
+                onClick={clearButton}
+                className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 flex items-center"
+              >
+                <Trash2 className="w-5 h-5 mr-2" />
+                Clear
+              </button>
+            )}
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="flex-grow flex gap-1 bg-yellow-100 dark:bg-gray-800 rounded-b-lg shadow-lg p-4"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <div className="flex-1 flex-grow relative">
+            <textarea
+              ref={inputRef}
+              value={input || ""}
+              onScroll={handleScroll}
+              placeholder="Type your calculations here..."
+              className={`${darkMode ? "dark" : "light"} w-full min-h-[calc(100vh-400px)] p-4 bg-transparent text-gray-800 dark:text-white rounded-none focus:outline-none resize-none font-mono text-md md:text-3xl leading-relaxed`}
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, transparent 48px)",
+                lineHeight: "48px",
+                padding: "8px 10px",
+                border: "none",
+              }}
+            />
+            <div className="absolute top-0 bottom-0 left-0 w-0.5 bg-red-400"></div>
+          </div>
+
+          <div className={`flex-1 flex-grow relative`}>
+            <textarea
+              ref={outputRef}
+              readOnly
+              value={output || ""}
+              placeholder="Output will appear here..."
+              className={`${darkMode ? "dark" : "light"} w-full min-h-[calc(100vh-400px)] p-4 bg-transparent text-gray-800 dark:text-green-500 rounded-none resize-none font-mono text-md md:text-3xl leading-relaxed`}
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, transparent 48px)",
+                lineHeight: "48px",
+                padding: "8px 10px",
+                border: "none",
+              }}
+            />
+            <div className="absolute top-0 bottom-0 left-0 w-0.5"></div>
+          </div>
+        </motion.div>
+      </main>
+
       {singOutModal && (
         <PopUpModal toggleModal={toggleSingOutModal} type="signout" />
       )}
@@ -208,26 +315,6 @@ export default function Home() {
           callbackfn={clearButtonCallback}
         />
       )}
-      <div className={styles.notepad}>
-        <div className={styles["notepadInputContainer"]}>
-          <textarea
-            value={input || ""}
-            onChange={handleInputChange}
-            placeholder="Type your calculations here..."
-            className={`${textAreaStyle} ${styles["textareaInput"]}`}
-          />
-        </div>
-        {output && (
-          <div className={styles["notepadOutputContainer"]}>
-            <textarea
-              readOnly
-              value={output}
-              placeholder="Output"
-              className={`${textAreaStyle} ${textAreaOutputStyle}`}
-            />
-          </div>
-        )}
-      </div>
     </div>
   );
 }
