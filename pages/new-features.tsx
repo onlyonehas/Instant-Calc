@@ -2,11 +2,13 @@
 
 import { Header } from "@/components/Header";
 import { PopUpModal } from "@/components/PopUpModal";
+import { useDarkMode } from "@/contexts/DarkModeContext";
 import Head from "next/head";
 import { useState } from "react";
 
 export default function NewFeatures() {
-  const [darkMode, toggleDarkMode] = useState(false);
+  const { darkMode } = useDarkMode();
+
   const [singOutModal, toggleSingOutModal] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -35,11 +37,7 @@ export default function NewFeatures() {
           content="New Features Request for Instant Calc"
         />
       </Head>
-      <Header
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        toggleModal={toggleSingOutModal}
-      ></Header>
+      <Header toggleModal={toggleSingOutModal}></Header>
       {singOutModal && (
         <PopUpModal toggleModal={toggleSingOutModal} type="signout" />
       )}
