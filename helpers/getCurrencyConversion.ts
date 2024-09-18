@@ -3,6 +3,7 @@ import { acceptedCurrencySymbols } from "../currencies";
 export const isCurrency = async (name: string) => {
   let withToCode: string | boolean = false;
   const hasIn = name.includes("in");
+  console.log(hasIn);
   if (hasIn) {
     const expression = name
       .split("in")
@@ -61,7 +62,7 @@ const fetchLiveCurrencyRate = async (
 
   try {
     const response: any = await fetch(url);
-    const data = await response.json();
+    const data = response.json();
     rate = data[to];
     finalCurrecyValue = rate ? rate * Number(currencyValue) : 0;
   } catch (error) {

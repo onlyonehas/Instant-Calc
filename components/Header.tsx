@@ -11,9 +11,7 @@ import { app } from "../pages/_document";
 import { DarkMode } from "./DarkMode";
 import { Profile } from "./Profile";
 
-type Header = {
-  darkMode: boolean;
-  toggleDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+type HeaderProps = {
   toggleModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -64,6 +62,7 @@ interface SignOutButtonProps {
   user: User | null;
   toggleModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
 const SignOutButton: React.FC<SignOutButtonProps> = ({ user, toggleModal }) => {
   return (
     <>
@@ -78,12 +77,12 @@ const SignOutButton: React.FC<SignOutButtonProps> = ({ user, toggleModal }) => {
   );
 };
 
-export const Header = ({ darkMode, toggleDarkMode, toggleModal }: Header) => {
+export const Header: React.FC<HeaderProps> = ({ toggleModal }) => {
   const user: User | null = useCustomAuth();
 
   return (
     <header>
-      <nav className="bg-white border-gray-200 px-2.5 pt-0 lg:px-6 py-2.5 md:h-16 dark:bg-gray-800">
+      <nav className="bg-gray-300 border-gray-200 px-2.5 pt-0 lg:px-6 py-2.5 md:h-16 dark:bg-gray-800">
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
           <div>
             <Link href="/">
@@ -100,7 +99,7 @@ export const Header = ({ darkMode, toggleDarkMode, toggleModal }: Header) => {
             ) : (
               <SignOutButton user={user} toggleModal={toggleModal} />
             )}
-            <DarkMode darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+            <DarkMode />
             <button
               data-collapse-toggle="mobile-menu-2"
               type="button"
@@ -150,12 +149,12 @@ export const Header = ({ darkMode, toggleDarkMode, toggleModal }: Header) => {
                 </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/about"
                   className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                 >
                   About
-                </a>
+                </Link>
               </li>
               <li>
                 <Link

@@ -1,5 +1,5 @@
-import { VariableMap } from "./sharedTypes";
 import { evaluate } from "mathjs";
+import { VariableMap } from "./sharedTypes";
 
 const reservedKeywords = ["prev", "sum", "to"];
 
@@ -14,8 +14,8 @@ export const evaluateExpression = ({
   variables,
   keywordValues,
 }: EvaluateExpressionType) => {
-  let exchanged = "";
-  let output = {
+  const exchanged = "";
+  const output = {
     evaluatedResult: 0,
     hasCustomOutput: exchanged,
   };

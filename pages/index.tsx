@@ -3,9 +3,12 @@
 import { Header } from "@/components/Header";
 import { Loader } from "@/components/Loader";
 import { PopUpModal } from "@/components/PopUpModal";
+import { useDarkMode } from "@/contexts/DarkModeContext";
+import { getDaysLeft } from "@/helpers/paydate";
+import { VariableMap } from "@/helpers/sharedTypes";
 import { useCalculations } from "@/hooks/useCalculations";
 import { useCustomAuth } from "@/hooks/useCustomAuth";
-import { useDarkMode } from "@/hooks/useDarkMode";
+import "@/styles/Dark.css";
 import { User } from "firebase/auth";
 import { motion } from "framer-motion";
 import { Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
@@ -13,9 +16,6 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import "tailwindcss/tailwind.css";
 import { evaluateExpression } from "../helpers/calculate";
-import { getDaysLeft } from "../helpers/paydate";
-import { VariableMap } from "../helpers/sharedTypes";
-import "../styles/Dark.css";
 
 const initialInput = `# Example Heading
 //comment: 300
@@ -34,7 +34,7 @@ export default function Index() {
   const [, setSum] = useState(0);
   const [, setPrev] = useState(0);
 
-  const [darkMode, setDarkMode] = useState(true);
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [singOutModal, toggleSingOutModal] = useState(false);
   const [clearButtonModal, toggleClearButtonModal] = useState(false);
 
@@ -44,12 +44,6 @@ export default function Index() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const outputRef = useRef<HTMLTextAreaElement>(null);
-
-  const toggleDarkMode = () => {
-    setDarkMode((prevDarkMode) => !prevDarkMode);
-  };
-
-  useDarkMode(darkMode, toggleDarkMode);
 
   useEffect(() => {
     if (calculations) {
@@ -94,10 +88,11 @@ export default function Index() {
     toggleClearButtonModal(true);
   };
 
-  const handleInput = useCallback(() => {
+  // TODO: seperate functionality
+  const handleInput = useCallback(async () => {
     const lines = input?.split("\n");
 
-    lines?.forEach((line) => {
+    for (const line of lines) {
       const trimmedLine = line.trim();
       let result: number = 0;
 
@@ -148,7 +143,7 @@ export default function Index() {
       keywordValues.tempSum += result;
       keywordValues.tempPrev = result;
       customOutput = "-";
-    });
+    }
 
     setOutput(newOutput);
     setSum(keywordValues.tempSum);
@@ -185,14 +180,10 @@ export default function Index() {
     <div
       className={`flex flex-col min-h-screen ${darkMode ? "dark" : "light"}`}
     >
-      <Header
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        toggleModal={toggleSingOutModal}
-      />
+      <Header toggleModal={toggleSingOutModal} />
       <main className="flex-grow container mx-auto px-4 py-8">
         <motion.h1
-          className="text-5xl md:text-8xl font-bold text-center my-8 text-gray-800 dark:text-white"
+          className="text-5xl md:text-7xl font-bold text-center my-7 text-gray-800 dark:text-white"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -271,9 +262,10 @@ export default function Index() {
             <textarea
               ref={inputRef}
               value={input || ""}
+              onChange={(e) => setInput(e.target.value)}
               onScroll={handleScroll}
               placeholder="Type your calculations here..."
-              className={`${darkMode ? "dark" : "light"} w-full min-h-[calc(100vh-400px)] p-4 bg-transparent text-gray-800 dark:text-white rounded-none focus:outline-none resize-none font-mono text-md md:text-3xl leading-relaxed`}
+              className="w-full min-h-[calc(100vh-400px)] p-4 bg-transparent text-gray-800 dark:text-white rounded-none focus:outline-none resize-none font-mono text-xs md:text-xl leading-relaxed"
               style={{
                 backgroundImage:
                   "repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, transparent 48px)",
@@ -285,13 +277,13 @@ export default function Index() {
             <div className="absolute top-0 bottom-0 left-0 w-0.5 bg-red-400"></div>
           </div>
 
-          <div className={`flex-1 flex-grow relative`}>
+          <div className="flex-1 flex-grow relative">
             <textarea
               ref={outputRef}
               readOnly
               value={output || ""}
               placeholder="Output will appear here..."
-              className={`${darkMode ? "dark" : "light"} w-full min-h-[calc(100vh-400px)] p-4 bg-transparent text-gray-800 dark:text-green-500 rounded-none resize-none font-mono text-md md:text-3xl leading-relaxed`}
+              className="w-full min-h-[calc(100vh-400px)] p-4 bg-transparent text-gray-800 dark:text-green-500 rounded-none resize-none font-mono text-xs md:text-xl leading-relaxed"
               style={{
                 backgroundImage:
                   "repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, transparent 48px)",
