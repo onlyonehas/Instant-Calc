@@ -9,9 +9,11 @@ import { VariableMap } from "@/helpers/sharedTypes";
 import { useCalculations } from "@/hooks/useCalculations";
 import { useCustomAuth } from "@/hooks/useCustomAuth";
 import "@/styles/Dark.css";
+import { database } from "@/pages/_document";
 import { User } from "firebase/auth";
+import { get, ref, set } from "firebase/database";
 import { motion } from "framer-motion";
-import { Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
+import { Calendar, Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import "tailwindcss/tailwind.css";
@@ -44,6 +46,23 @@ export default function Index() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const outputRef = useRef<HTMLTextAreaElement>(null);
+  const variablesRef = useRef<{ [name: string]: number }>({});
+  const [scrollTop, setScrollTop] = useState(0);
+  const iconContainerRef = useRef<HTMLDivElement>(null);
+
+  const [deductionDates, setDeductionDates] = useState<{
+    [name: string]: number;
+  }>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("deductionDates");
+      return stored ? JSON.parse(stored) : {};
+    }
+    return {};
+  });
+  const [showDatePickerFor, setShowDatePickerFor] = useState<string | null>(
+    null,
+  );
+  const [datePickerValue, setDatePickerValue] = useState<number>(1);
 
   useEffect(() => {
     if (calculations) {
@@ -51,6 +70,17 @@ export default function Index() {
       setOutput(calculations.output);
     }
   }, [calculations]);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+    }
+    if (outputRef.current) {
+      outputRef.current.style.height = "auto";
+      outputRef.current.style.height = `${outputRef.current.scrollHeight}px`;
+    }
+  }, [input, output]);
 
   useEffect(() => {
     handleInput();
@@ -61,6 +91,33 @@ export default function Index() {
       nameInputRef.current.focus();
     }
   }, [isEditingName]);
+
+  useEffect(() => {
+    localStorage.setItem("deductionDates", JSON.stringify(deductionDates));
+  }, [deductionDates]);
+
+  useEffect(() => {
+    if (user && database) {
+      const dbRef = ref(database, `users/${user.uid}/deductionDates`);
+      get(dbRef).then((snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setDeductionDates(data);
+        }
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && database && Object.keys(deductionDates).length > 0) {
+      const dbRef = ref(database, `users/${user.uid}/deductionDates`);
+      set(dbRef, deductionDates);
+    }
+  }, [deductionDates, user]);
+
+  useEffect(() => {
+    handleInput();
+  }, [deductionDates]);
 
   const variables: VariableMap = {};
   let newOutput = "";
@@ -88,9 +145,12 @@ export default function Index() {
     toggleClearButtonModal(true);
   };
 
-  // TODO: seperate functionality
   const handleInput = useCallback(async () => {
-    const lines = input?.split("\n");
+    if (!input) {
+      setOutput("");
+      return;
+    }
+    const lines = input.split("\n");
 
     for (const line of lines) {
       const trimmedLine = line.trim();
@@ -98,6 +158,7 @@ export default function Index() {
 
       if (trimmedLine.startsWith("#") || trimmedLine.startsWith("//")) {
         customOutput = `-`;
+        newOutput += `${customOutput}\n`;
       } else if (trimmedLine.includes(":")) {
         const [name, expression] = trimmedLine
           .split(":")
@@ -110,6 +171,15 @@ export default function Index() {
         result = evaluatedResult;
         customOutput = hasCustomOutput;
         variables[name] = result;
+
+        if (
+          deductionDates[name] &&
+          new Date().getDate() >= deductionDates[name]
+        ) {
+          newOutput += `//${name}=${result}\n`;
+        } else {
+          newOutput += `${result ? result : customOutput}\n`;
+        }
       } else if (trimmedLine.includes("=")) {
         const [name, expression] = trimmedLine
           .split("=")
@@ -117,6 +187,7 @@ export default function Index() {
         if (name === "monthlypaydate") {
           const monthlyPayDate = Number(expression);
           customOutput = getDaysLeft(monthlyPayDate);
+          newOutput += `${customOutput}\n`;
         } else {
           const { evaluatedResult, hasCustomOutput } = evaluateExpression({
             expression,
@@ -125,8 +196,17 @@ export default function Index() {
           });
           result = evaluatedResult;
           customOutput = hasCustomOutput;
+          variables[name] = result;
+
+          if (
+            deductionDates[name] &&
+            new Date().getDate() >= deductionDates[name]
+          ) {
+            newOutput += `//${name}=${result}\n`;
+          } else {
+            newOutput += `${result ? result : customOutput}\n`;
+          }
         }
-        variables[name] = result;
       } else {
         if (trimmedLine) {
           const output = evaluateExpression({
@@ -136,10 +216,12 @@ export default function Index() {
           });
           result = output.evaluatedResult;
           customOutput = output.hasCustomOutput;
+          newOutput += `${result ? result : customOutput}\n`;
+        } else {
+          newOutput += `\n`;
         }
       }
 
-      newOutput += `${result ? result : customOutput}\n`;
       keywordValues.tempSum += result;
       keywordValues.tempPrev = result;
       customOutput = "-";
@@ -148,11 +230,47 @@ export default function Index() {
     setOutput(newOutput);
     setSum(keywordValues.tempSum);
     setPrev(keywordValues.tempPrev);
-  }, [input]);
+    variablesRef.current = { ...variables };
 
-  const handleScroll = (event: React.UIEvent<HTMLTextAreaElement>) => {
+    const newInput = input
+      .split("\n")
+      .map((line) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith("#") || trimmed.startsWith("//")) return line;
+        if (trimmed.includes("=") || trimmed.includes(":")) {
+          const separator = trimmed.includes("=") ? "=" : ":";
+          const [name] = trimmed
+            .split(separator)
+            .map((s) => s.trim().toLowerCase());
+          if (
+            name &&
+            name !== "monthlypaydate" &&
+            deductionDates[name] &&
+            new Date().getDate() >= deductionDates[name]
+          ) {
+            return `//${line}`;
+          }
+        }
+        return line;
+      })
+      .join("\n");
+
+    if (newInput !== input) {
+      setInput(newInput);
+    }
+  }, [input, deductionDates]);
+
+  const handleInputScroll = (event: React.UIEvent<HTMLTextAreaElement>) => {
+    setScrollTop(event.currentTarget.scrollTop);
     if (inputRef.current && outputRef.current) {
       outputRef.current.scrollTop = event.currentTarget.scrollTop;
+    }
+  };
+
+  const handleOutputScroll = (event: React.UIEvent<HTMLTextAreaElement>) => {
+    setScrollTop(event.currentTarget.scrollTop);
+    if (inputRef.current && outputRef.current) {
+      inputRef.current.scrollTop = event.currentTarget.scrollTop;
     }
   };
 
@@ -175,6 +293,27 @@ export default function Index() {
       setIsEditingName(false);
     }
   };
+
+  const inputLines = (input || "").split("\n");
+  const variableLines: { name: string; lineIndex: number }[] = [];
+  inputLines.forEach((line, index) => {
+    const trimmed = line.trim();
+    const content = trimmed.startsWith("//")
+      ? trimmed.slice(2).trim()
+      : trimmed;
+    if (
+      (content.includes("=") || content.includes(":")) &&
+      !content.startsWith("#")
+    ) {
+      const separator = content.includes("=") ? "=" : ":";
+      const [name] = content
+        .split(separator)
+        .map((s) => s.trim().toLowerCase());
+      if (name && name !== "monthlypaydate") {
+        variableLines.push({ name, lineIndex: index });
+      }
+    }
+  });
 
   return (
     <div
@@ -263,18 +402,48 @@ export default function Index() {
               ref={inputRef}
               value={input || ""}
               onChange={(e) => setInput(e.target.value)}
-              onScroll={handleScroll}
+              onScroll={handleInputScroll}
               placeholder="Type your calculations here..."
-              className="w-full min-h-[calc(100vh-400px)] p-4 bg-transparent text-gray-800 dark:text-white rounded-none focus:outline-none resize-none font-mono text-xs md:text-xl leading-relaxed"
+              className="w-full p-4 bg-transparent text-gray-800 dark:text-white rounded-none focus:outline-none resize-none overflow-hidden font-mono text-xs md:text-xl leading-relaxed"
               style={{
                 backgroundImage:
                   "repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, transparent 48px)",
                 lineHeight: "48px",
                 padding: "8px 10px",
                 border: "none",
+                minHeight: "calc(100vh - 400px)",
               }}
             />
             <div className="absolute top-0 bottom-0 left-0 w-0.5 bg-red-400"></div>
+          </div>
+
+          <div className="w-6 relative flex-shrink-0" ref={iconContainerRef}>
+            {variableLines.map(({ name, lineIndex }) => {
+              const iconTop = 8 + lineIndex * 48 - scrollTop;
+              const containerHeight =
+                iconContainerRef.current?.clientHeight || 0;
+              const inView = iconTop + 48 > 0 && iconTop < containerHeight;
+              return (
+                <div
+                  key={name}
+                  className="absolute left-0 right-0 flex items-center justify-center group cursor-pointer"
+                  style={{
+                    top: `${iconTop}px`,
+                    height: "48px",
+                    opacity: inView ? 1 : 0,
+                    pointerEvents: inView ? "auto" : "none",
+                  }}
+                  onClick={() => {
+                    setDatePickerValue(deductionDates[name] || 1);
+                    setShowDatePickerFor(name);
+                  }}
+                >
+                  <Calendar
+                    className={`w-3.5 h-3.5 transition-opacity cursor-pointer ${deductionDates[name] ? "text-green-500 opacity-100" : "text-gray-400 opacity-0 group-hover:opacity-100 hover:text-green-500"}`}
+                  />
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex-1 flex-grow relative">
@@ -282,14 +451,16 @@ export default function Index() {
               ref={outputRef}
               readOnly
               value={output || ""}
+              onScroll={handleOutputScroll}
               placeholder="Output will appear here..."
-              className="w-full min-h-[calc(100vh-400px)] p-4 bg-transparent text-gray-800 dark:text-green-500 rounded-none resize-none font-mono text-xs md:text-xl leading-relaxed"
+              className="w-full p-4 bg-transparent text-gray-800 dark:text-green-500 rounded-none resize-none overflow-hidden font-mono text-xs md:text-xl leading-relaxed"
               style={{
                 backgroundImage:
                   "repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, transparent 48px)",
                 lineHeight: "48px",
                 padding: "8px 10px",
                 border: "none",
+                minHeight: "calc(100vh - 400px)",
               }}
             />
             <div className="absolute top-0 bottom-0 left-0 w-0.5"></div>
@@ -306,6 +477,71 @@ export default function Index() {
           type="clearButton"
           callbackfn={clearButtonCallback}
         />
+      )}
+
+      {showDatePickerFor && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+          onClick={() => setShowDatePickerFor(null)}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-gray-700 w-64"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-sm font-medium mb-3 text-gray-800 dark:text-white">
+              Deduction day for{" "}
+              <span className="font-bold">{showDatePickerFor}</span>
+            </div>
+            <input
+              type="number"
+              min={1}
+              max={31}
+              value={datePickerValue}
+              onChange={(e) =>
+                setDatePickerValue(
+                  Math.min(31, Math.max(1, Number(e.target.value) || 1)),
+                )
+              }
+              className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-transparent text-gray-800 dark:text-white text-center text-lg"
+            />
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+              Day of month (1-31)
+            </div>
+            <div className="flex gap-2 mt-3">
+              <button
+                onClick={() => {
+                  setDeductionDates((prev) => ({
+                    ...prev,
+                    [showDatePickerFor]: datePickerValue,
+                  }));
+                  setShowDatePickerFor(null);
+                }}
+                className="flex-1 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm transition-colors"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setDeductionDates((prev) => {
+                    const next = { ...prev };
+                    delete next[showDatePickerFor];
+                    return next;
+                  });
+                  setShowDatePickerFor(null);
+                }}
+                className="px-3 py-1.5 bg-red-500 text-white rounded hover:bg-red-600 text-sm transition-colors"
+              >
+                Remove
+              </button>
+              <button
+                onClick={() => setShowDatePickerFor(null)}
+                className="px-3 py-1.5 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-sm transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
