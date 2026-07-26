@@ -12,14 +12,8 @@ export const Profile = ({ user }: Profile) => {
   if (user)
     return (
       <>
-        <img
-          className={styles.roundedPolygon}
-          src={imgSrc}
-          alt="Profile Picture"
-        />
-        <span className="hidden md:block mx-2  dark:text-white">
-          {displayName}
-        </span>
+        <img className={styles.roundedPolygon} src={imgSrc} alt="Profile Picture" />
+        <span className="hidden md:block mx-2  dark:text-white">{displayName}</span>
       </>
     );
 };

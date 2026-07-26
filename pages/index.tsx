@@ -18,11 +18,7 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import "tailwindcss/tailwind.css";
 import { evaluateExpression } from "../helpers/calculate";
-import {
-  getAutoCommentedLines,
-  computeSummary,
-  parseVariableLine,
-} from "../helpers/calculations";
+import { getAutoCommentedLines, computeSummary, parseVariableLine } from "../helpers/calculations";
 
 const initialInput = `# Example Heading
 //comment: 300
@@ -65,9 +61,7 @@ export default function Index() {
     }
     return {};
   });
-  const [showDatePickerFor, setShowDatePickerFor] = useState<string | null>(
-    null,
-  );
+  const [showDatePickerFor, setShowDatePickerFor] = useState<string | null>(null);
   const [datePickerValue, setDatePickerValue] = useState<string>("1");
   const [showNextMonth, setShowNextMonth] = useState(false);
 
@@ -171,9 +165,7 @@ export default function Index() {
         customOutput = `-`;
         newOutput += `${customOutput}\n`;
       } else if (trimmedLine.includes(":")) {
-        const [name, expression] = trimmedLine
-          .split(":")
-          .map((item) => item.trim().toLowerCase());
+        const [name, expression] = trimmedLine.split(":").map((item) => item.trim().toLowerCase());
         const { evaluatedResult, hasCustomOutput } = evaluateExpression({
           expression,
           variables,
@@ -287,9 +279,7 @@ export default function Index() {
     setIsEditingName(false);
   };
 
-  const handleNotebookNameKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
+  const handleNotebookNameKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       setIsEditingName(false);
     }
@@ -313,9 +303,7 @@ export default function Index() {
   });
 
   return (
-    <div
-      className={`flex flex-col min-h-screen ${darkMode ? "dark" : "light"}`}
-    >
+    <div className={`flex flex-col min-h-screen ${darkMode ? "dark" : "light"}`}>
       <Header toggleModal={toggleSingOutModal} />
       <main className="flex-grow container mx-auto px-4 py-8">
         <motion.h1
@@ -484,8 +472,7 @@ export default function Index() {
             >
               {variableLines.map(({ name, lineIndex }) => {
                 const iconTop = 8 + lineIndex * 48 - scrollTop;
-                const containerHeight =
-                  iconContainerRef.current?.clientHeight || 0;
+                const containerHeight = iconContainerRef.current?.clientHeight || 0;
                 const inView = iconTop + 48 > 0 && iconTop < containerHeight;
                 return (
                   <div
@@ -534,9 +521,7 @@ export default function Index() {
         </div>
       </main>
 
-      {singOutModal && (
-        <PopUpModal toggleModal={toggleSingOutModal} type="signout" />
-      )}
+      {singOutModal && <PopUpModal toggleModal={toggleSingOutModal} type="signout" />}
       {clearButtonModal && (
         <PopUpModal
           toggleModal={toggleClearButtonModal}
@@ -555,8 +540,7 @@ export default function Index() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-sm font-medium mb-3 text-gray-800 dark:text-white">
-              Deduction day for{" "}
-              <span className="font-bold">{showDatePickerFor}</span>
+              Deduction day for <span className="font-bold">{showDatePickerFor}</span>
             </div>
             <input
               type="number"
@@ -577,10 +561,7 @@ export default function Index() {
             <div className="flex gap-2 mt-3">
               <button
                 onClick={() => {
-                  const day = Math.min(
-                    31,
-                    Math.max(1, Number(datePickerValue) || 1),
-                  );
+                  const day = Math.min(31, Math.max(1, Number(datePickerValue) || 1));
                   setDeductionDates((prev) => ({
                     ...prev,
                     [showDatePickerFor]: day,

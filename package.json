@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "next lint --fix",
     "test": "vitest run",
+    "audit": "npm audit --audit-level=critical",
+    "audit:high": "npm audit --audit-level=high",
     "deploy": "firebase deploy --only hosting",
     "prepare": "husky"
   },
@@ -39,6 +41,8 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^8.0.0",
     "eslint-config-next": "^14.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
     "postcss": "^8.4.45",
