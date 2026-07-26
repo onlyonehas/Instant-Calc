@@ -51,7 +51,6 @@ export default function Index() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const outputRef = useRef<HTMLTextAreaElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
-  const quillRef = useRef<any>(null);
   const quillEditorRef = useRef<any>(null);
   const quillScrollRef = useRef<HTMLElement | null>(null);
   const variablesRef = useRef<{ [name: string]: number }>({});
@@ -139,9 +138,13 @@ export default function Index() {
 
   const getQuillEditor = useCallback(() => {
     if (quillEditorRef.current) return quillEditorRef.current;
-    try {
-      quillEditorRef.current = quillRef.current?.getEditor?.();
-    } catch {}
+    const root = inputContainerRef.current;
+    if (!root) return null;
+    const editorEl = root.querySelector<HTMLElement>(".ql-editor");
+    const container = editorEl?.closest(".ql-container") as any;
+    if (container?.__quill) {
+      quillEditorRef.current = container.__quill;
+    }
     return quillEditorRef.current;
   }, []);
 
@@ -520,7 +523,6 @@ export default function Index() {
           >
             <div className="flex-1 min-w-0 relative" ref={inputContainerRef}>
               <ReactQuill
-                {...({ ref: quillRef } as any)}
                 defaultValue={input || ""}
                 onChange={handleQuillChange}
                 modules={quillModules}
