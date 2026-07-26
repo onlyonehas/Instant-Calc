@@ -15,7 +15,6 @@ import { get, ref, set } from "firebase/database";
 import { motion } from "framer-motion";
 import { Calendar, Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import "react-quill/dist/quill.snow.css";
 import "tailwindcss/tailwind.css";
 import { evaluateExpression } from "../helpers/calculate";
 import { getAutoCommentedLines, computeSummary, parseVariableLine } from "../helpers/calculations";
