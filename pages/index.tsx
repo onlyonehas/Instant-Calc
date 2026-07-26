@@ -51,6 +51,7 @@ export default function Index() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const outputRef = useRef<HTMLTextAreaElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
+  const quillRef = useRef<any>(null);
   const quillEditorRef = useRef<any>(null);
   const quillScrollRef = useRef<HTMLElement | null>(null);
   const variablesRef = useRef<{ [name: string]: number }>({});
@@ -136,9 +137,18 @@ export default function Index() {
     }
   }, [handleInputScroll]);
 
+  const getQuillEditor = useCallback(() => {
+    if (quillEditorRef.current) return quillEditorRef.current;
+    try {
+      quillEditorRef.current = quillRef.current?.getEditor?.();
+    } catch {}
+    return quillEditorRef.current;
+  }, []);
+
   const handleQuillChange = useCallback(
-    (_value: string, _delta: any, _source: string, editor: any) => {
-      quillEditorRef.current = editor;
+    (_value: string, _delta: any, _source: string, _editor: any) => {
+      const editor = getQuillEditor();
+      if (!editor) return;
       attachQuillScroll();
       const text = (editor.getText() || "").replace(/\n$/, "");
       if (text !== input) {
@@ -146,18 +156,18 @@ export default function Index() {
       }
       requestAnimationFrame(() => highlightSyntax(editor));
     },
-    [input, highlightSyntax, attachQuillScroll],
+    [input, highlightSyntax, attachQuillScroll, getQuillEditor],
   );
 
   useEffect(() => {
-    const editor = quillEditorRef.current;
+    const editor = getQuillEditor();
     if (!editor) return;
     const currentText = (editor.getText() || "").replace(/\n$/, "");
     if (currentText !== input) {
       editor.setText(input || "");
     }
     requestAnimationFrame(() => highlightSyntax(editor));
-  }, [input, highlightSyntax]);
+  }, [input, highlightSyntax, getQuillEditor]);
 
   const quillModules = { toolbar: false };
   const quillFormats = ["bold", "italic", "color"];
@@ -510,6 +520,7 @@ export default function Index() {
           >
             <div className="flex-1 min-w-0 relative" ref={inputContainerRef}>
               <ReactQuill
+                {...({ ref: quillRef } as any)}
                 defaultValue={input || ""}
                 onChange={handleQuillChange}
                 modules={quillModules}
