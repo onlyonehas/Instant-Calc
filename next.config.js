@@ -7,4 +7,16 @@ const withPWA = require("next-pwa")({
 
 module.exports = withPWA({
   reactStrictMode: true,
+  swcMinify: true,
+  modularizeImports: {
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{member}}",
+    },
+    "framer-motion": {
+      transform: "framer-motion/dist/esm/{{member}}",
+    },
+  },
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion", "firebase"],
+  },
 });
