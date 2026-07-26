@@ -16,9 +16,7 @@ export default function NewFeatures() {
     description: "",
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -32,31 +30,23 @@ export default function NewFeatures() {
     <>
       <Head>
         <title>New Features Request</title>
-        <meta
-          name="description"
-          content="New Features Request for Instant Calc"
-        />
+        <meta name="description" content="New Features Request for Instant Calc" />
       </Head>
       <Header toggleModal={toggleSingOutModal}></Header>
-      {singOutModal && (
-        <PopUpModal toggleModal={toggleSingOutModal} type="signout" />
-      )}
+      {singOutModal && <PopUpModal toggleModal={toggleSingOutModal} type="signout" />}
       <div
         className={`${
           darkMode ? "dark" : "light"
         } flex flex-col items-center justify-center min-h-screen py-10`}
       >
         <div className="max-w-2xl w-full shadow-md rounded-lg p-6">
-          <h1 className="text-3xl font-bold text-purple-600 text-center mb-4">
-            Feature Request
-          </h1>
+          <h1 className="text-3xl font-bold text-purple-600 text-center mb-4">Feature Request</h1>
           <p className=" text-center mb-8">
             Have a cool feature in mind?
             <br />
             Let us know!
             <br />
-            We appreciate your feedback and are always looking for ways to
-            improve our platform.
+            We appreciate your feedback and are always looking for ways to improve our platform.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -91,10 +81,7 @@ export default function NewFeatures() {
             </div>
 
             <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium "
-              >
+              <label htmlFor="description" className="block text-sm font-medium ">
                 Feature Description
               </label>
               <textarea

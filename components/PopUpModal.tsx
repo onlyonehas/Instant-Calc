@@ -6,11 +6,7 @@ interface PopUpModalProps {
   callbackfn?: () => void;
 }
 
-export const PopUpModal: React.FC<PopUpModalProps> = ({
-  toggleModal,
-  type,
-  callbackfn,
-}) => {
+export const PopUpModal: React.FC<PopUpModalProps> = ({ toggleModal, type, callbackfn }) => {
   const signOutText = (
     <div>
       <p>Are you sure you want to Sign Out?</p>
@@ -84,9 +80,7 @@ export const PopUpModal: React.FC<PopUpModalProps> = ({
                 d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
               />
             </svg>
-            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-              {text}
-            </h3>
+            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">{text}</h3>
             <button
               data-modal-hide="popup-modal"
               type="button"

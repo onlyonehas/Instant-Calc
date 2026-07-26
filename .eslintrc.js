@@ -1,5 +1,9 @@
 module.exports = {
-  extends: ["next", "plugin:@typescript-eslint/recommended"],
+  extends: [
+    "next",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+  ],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint"],
   settings: {
@@ -19,6 +23,30 @@ module.exports = {
       2,
       { devDependencies: ["**/test.tsx", "**/test.ts"] },
     ],
-    "@typescript-eslint/indent": [2, 2],
+    "@typescript-eslint/indent": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      },
+    ],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "no-console": ["warn", { allow: ["warn", "error"] }],
+    "prefer-const": "error",
+    "no-var": "error",
+    eqeqeq: ["error", "always", { null: "ignore" }],
+    "no-duplicate-imports": "error",
+    "prefer-template": "warn",
+    "object-shorthand": "warn",
   },
+  ignorePatterns: [
+    ".next/*",
+    "node_modules/*",
+    "public/*",
+    "next.config.js",
+  ],
 };
