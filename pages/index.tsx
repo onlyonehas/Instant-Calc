@@ -15,7 +15,11 @@ import { get, ref, set } from "firebase/database";
 import { motion } from "framer-motion";
 import { Calendar, Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import "tailwindcss/tailwind.css";
+
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import "react-quill/dist/quill.snow.css";
 import { evaluateExpression } from "../helpers/calculate";
 import { getAutoCommentedLines, computeSummary, parseVariableLine } from "../helpers/calculations";
 
@@ -46,6 +50,9 @@ export default function Index() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const outputRef = useRef<HTMLTextAreaElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
+  const quillEditorRef = useRef<any>(null);
+  const quillScrollRef = useRef<HTMLElement | null>(null);
   const variablesRef = useRef<{ [name: string]: number }>({});
   const originalValuesRef = useRef<{ [name: string]: number }>({});
   const [scrollTop, setScrollTop] = useState(0);
@@ -72,17 +79,6 @@ export default function Index() {
   }, [calculations]);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.style.height = "auto";
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
-    }
-    if (outputRef.current) {
-      outputRef.current.style.height = "auto";
-      outputRef.current.style.height = `${outputRef.current.scrollHeight}px`;
-    }
-  }, [input, output]);
-
-  useEffect(() => {
     handleInput();
   }, [input]);
 
@@ -91,6 +87,80 @@ export default function Index() {
       nameInputRef.current.focus();
     }
   }, [isEditingName]);
+
+  const highlightSyntax = useCallback((editor: any) => {
+    if (!editor) return;
+    const text = editor.getText() || "";
+    const lines = text.split("\n");
+    let offset = 0;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      const length = line.length;
+      if (trimmed.startsWith("#")) {
+        editor.formatText(offset, length, { color: "#16a34a", bold: true });
+      } else if (trimmed.startsWith("//")) {
+        editor.formatText(offset, length, { color: "#9ca3af", italic: true });
+      } else if (/^monthlypaydate\b/i.test(trimmed)) {
+        const eqIdx = trimmed.indexOf("=");
+        const keywordLen = eqIdx >= 0 ? eqIdx : trimmed.length;
+        editor.formatText(offset, keywordLen, { color: "#3b82f6" });
+      } else {
+        const colonIdx = trimmed.indexOf(":");
+        const eqIdx = trimmed.indexOf("=");
+        const sepIdx = eqIdx >= 0 && (colonIdx < 0 || eqIdx < colonIdx) ? eqIdx : colonIdx;
+        if (sepIdx > 0) {
+          const nameLen = trimmed.slice(0, sepIdx).length;
+          const color = trimmed[sepIdx] === ":" ? "#d97706" : "#06b6d4";
+          editor.formatText(offset, nameLen, { color, bold: false });
+        }
+      }
+      offset += length + 1;
+    }
+  }, []);
+
+  const handleInputScroll = useCallback(() => {
+    const container = quillScrollRef.current;
+    if (!container) return;
+    setScrollTop(container.scrollTop);
+    if (outputRef.current) {
+      outputRef.current.scrollTop = container.scrollTop;
+    }
+  }, []);
+
+  const attachQuillScroll = useCallback(() => {
+    quillScrollRef.current?.removeEventListener("scroll", handleInputScroll);
+    const container = inputContainerRef.current?.querySelector<HTMLElement>(".ql-container");
+    if (container) {
+      quillScrollRef.current = container;
+      container.addEventListener("scroll", handleInputScroll);
+    }
+  }, [handleInputScroll]);
+
+  const handleQuillChange = useCallback(
+    (_value: string, _delta: any, _source: string, editor: any) => {
+      quillEditorRef.current = editor;
+      attachQuillScroll();
+      const text = (editor.getText() || "").replace(/\n$/, "");
+      if (text !== input) {
+        setInput(text);
+      }
+      requestAnimationFrame(() => highlightSyntax(editor));
+    },
+    [input, highlightSyntax, attachQuillScroll],
+  );
+
+  useEffect(() => {
+    const editor = quillEditorRef.current;
+    if (!editor) return;
+    const currentText = (editor.getText() || "").replace(/\n$/, "");
+    if (currentText !== input) {
+      editor.setText(input || "");
+    }
+    requestAnimationFrame(() => highlightSyntax(editor));
+  }, [input, highlightSyntax]);
+
+  const quillModules = { toolbar: false };
+  const quillFormats = ["bold", "italic", "color"];
 
   useEffect(() => {
     localStorage.setItem("deductionDates", JSON.stringify(deductionDates));
@@ -252,17 +322,11 @@ export default function Index() {
     }
   }, [input, deductionDates, showNextMonth]);
 
-  const handleInputScroll = (event: React.UIEvent<HTMLTextAreaElement>) => {
-    setScrollTop(event.currentTarget.scrollTop);
-    if (inputRef.current && outputRef.current) {
-      outputRef.current.scrollTop = event.currentTarget.scrollTop;
-    }
-  };
-
   const handleOutputScroll = (event: React.UIEvent<HTMLTextAreaElement>) => {
     setScrollTop(event.currentTarget.scrollTop);
-    if (inputRef.current && outputRef.current) {
-      inputRef.current.scrollTop = event.currentTarget.scrollTop;
+    const container = quillScrollRef.current;
+    if (container) {
+      container.scrollTop = event.currentTarget.scrollTop;
     }
   };
 
@@ -444,23 +508,15 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <div className="flex-1 min-w-0 relative">
-              <textarea
-                ref={inputRef}
-                value={input || ""}
-                onChange={(e) => setInput(e.target.value)}
-                onScroll={handleInputScroll}
+            <div className="flex-1 min-w-0 relative" ref={inputContainerRef}>
+              <ReactQuill
+                defaultValue={input || ""}
+                onChange={handleQuillChange}
+                modules={quillModules}
+                formats={quillFormats}
                 placeholder="Type your calculations here..."
-                className="w-full bg-transparent text-gray-800 dark:text-white rounded-none focus:outline-none resize-none overflow-hidden font-mono text-xs md:text-2xl lg:text-3xl leading-relaxed"
-                style={{
-                  backgroundImage:
-                    "repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, var(--row-alt) 48px, var(--row-alt) 95px, #999 95px, #999 96px)",
-                  lineHeight: "48px",
-                  padding: "8px 2px",
-                  border: "none",
-                  minHeight: "calc(100vh - 400px)",
-                  minWidth: "80px",
-                }}
+                className="quill-editor w-full font-mono text-xs md:text-2xl lg:text-3xl"
+                theme="snow"
               />
               <div className="absolute top-0 bottom-0 left-0 w-0.5 bg-red-400"></div>
             </div>
