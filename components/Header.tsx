@@ -1,11 +1,5 @@
 import { useCustomAuth } from "@/hooks/useCustomAuth";
-import {
-  GoogleAuthProvider,
-  User,
-  getAuth,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
+import { GoogleAuthProvider, User, getAuth, signInWithPopup, signOut } from "firebase/auth";
 import Link from "next/link";
 import { app } from "../pages/_document";
 import { DarkMode } from "./DarkMode";
@@ -86,19 +80,11 @@ export const Header: React.FC<HeaderProps> = ({ toggleModal }) => {
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
           <div>
             <Link href="/">
-              <img
-                src="/ic-transparent.png"
-                className="h-16 lg:mr-10"
-                alt="Instant Calc Logo"
-              />
+              <img src="/ic-transparent.png" className="h-16 lg:mr-10" alt="Instant Calc Logo" />
             </Link>
           </div>
           <div className="flex items-center lg:order-2">
-            {!user ? (
-              <SignInButton />
-            ) : (
-              <SignOutButton user={user} toggleModal={toggleModal} />
-            )}
+            {!user ? <SignInButton /> : <SignOutButton user={user} toggleModal={toggleModal} />}
             <DarkMode />
             <button
               data-collapse-toggle="mobile-menu-2"

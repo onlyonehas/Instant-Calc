@@ -1,11 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  ChevronDown,
-  LucideChevronsDown,
-  LucideChevronsRight,
-} from "lucide-react";
+import { ChevronDown, LucideChevronsDown, LucideChevronsRight } from "lucide-react";
 import Head from "next/head";
 import router from "next/router";
 import { useEffect, useRef, useState } from "react";
@@ -50,13 +46,7 @@ export default function About() {
   const usageRef = useRef<HTMLDivElement>(null);
   const futureWorkRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
-  const displayedText = useTypewriter(
-    words[wordIndex],
-    100,
-    isDeleting,
-    index,
-    setIndex,
-  );
+  const displayedText = useTypewriter(words[wordIndex], 100, isDeleting, index, setIndex);
 
   useEffect(() => {
     if (displayedText === words[wordIndex] && !isDeleting) {
@@ -154,26 +144,18 @@ export default function About() {
           <ChevronDown className="w-6 h-6" />
         </motion.button>
       </div>
-      <div
-        ref={aboutRef}
-        id="about"
-        className="min-h-screen bg-gray-900 p-8 flex items-center"
-      >
+      <div ref={aboutRef} id="about" className="min-h-screen bg-gray-900 p-8 flex items-center">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-4 text-center">
-            About Instant Calc 🧮
-          </h2>
+          <h2 className="text-3xl font-bold text-white mb-4 text-center">About Instant Calc 🧮</h2>
           <p className="text-gray-300 mb-4">
-            Instant Calc is a cutting-edge calculation tool designed to
-            revolutionize the way you work with numbers. Our platform combines
-            lightning-fast processing with intuitive design, making complex
-            computations a breeze for users of all levels.
+            Instant Calc is a cutting-edge calculation tool designed to revolutionize the way you
+            work with numbers. Our platform combines lightning-fast processing with intuitive
+            design, making complex computations a breeze for users of all levels.
           </p>
           <p className="text-gray-300 mb-4">
-            Whether you&apos;re a student tackling advanced mathematics, a
-            professional dealing with intricate financial models, or simply
-            someone who loves efficient problem-solving, Instant Calc is your
-            ultimate companion for all calculation needs.
+            Whether you&apos;re a student tackling advanced mathematics, a professional dealing with
+            intricate financial models, or simply someone who loves efficient problem-solving,
+            Instant Calc is your ultimate companion for all calculation needs.
           </p>
           <motion.div
             initial="hidden"
@@ -196,33 +178,29 @@ export default function About() {
         className="min-h-screen bg-gray-800 p-8 flex items-center"
       >
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-white mb-4">
-            Key Features ✨
-          </h2>
+          <h2 className="text-3xl font-bold text-center text-white mb-4">Key Features ✨</h2>
           <ul className="list-disc list-inside text-gray-300 space-y-2 mb-4">
             <li>
-              🗣️ Natural Language Syntax: Perform calculations using familiar
-              phrases and expressions.
+              🗣️ Natural Language Syntax: Perform calculations using familiar phrases and
+              expressions.
             </li>
             <li>
-              ⚡ Real-Time Evaluation: Instantly see the results of your
-              calculations as you type.
+              ⚡ Real-Time Evaluation: Instantly see the results of your calculations as you type.
             </li>
             <li>
-              🔤 Variable Assignment: Define and use variables to store values
-              for repeated use.
+              🔤 Variable Assignment: Define and use variables to store values for repeated use.
             </li>
             <li>
-              🧠 Expression Parsing: Evaluate complex expressions with
-              operators, functions, and parentheses.
+              🧠 Expression Parsing: Evaluate complex expressions with operators, functions, and
+              parentheses.
             </li>
             <li>
-              💬 Commenting: Add comments to your calculations for better
-              organization and understanding.
+              💬 Commenting: Add comments to your calculations for better organization and
+              understanding.
             </li>
             <li>
-              📱 Responsive Design: Enjoy a seamless experience across different
-              devices and screen sizes.
+              📱 Responsive Design: Enjoy a seamless experience across different devices and screen
+              sizes.
             </li>
           </ul>
           <motion.div
@@ -240,36 +218,24 @@ export default function About() {
           </motion.div>
         </div>
       </div>
-      <div
-        ref={usageRef}
-        id="usage"
-        className="min-h-screen bg-gray-900 p-8 flex items-center"
-      >
+      <div ref={usageRef} id="usage" className="min-h-screen bg-gray-900 p-8 flex items-center">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl text-center font-bold text-white mb-4">
-            Usage Guide 📘
-          </h2>
+          <h2 className="text-3xl text-center font-bold text-white mb-4">Usage Guide 📘</h2>
           <ol className="list-decimal list-inside text-gray-300 space-y-2 mb-4">
             <li>Type your calculations in the input textarea.</li>
-            <li>
-              Press Enter or click outside the textarea to evaluate the
-              expression.
-            </li>
+            <li>Press Enter or click outside the textarea to evaluate the expression.</li>
             <li>The output will be displayed in the output textarea.</li>
             <li>Store operations in a variable by starting with name=</li>
-            <li>
-              Add comments using the // prefix to document your calculations.
-            </li>
+            <li>Add comments using the // prefix to document your calculations.</li>
             <li>Add headings using the # prefix for ease of labelling.</li>
             <li>
-              Make use of reserved keywords [&quot;prev&quot;, &quot;sum&quot;,
-              &quot;to&quot;, &quot;monthlyPayDate&quot;, &quot;in&quot;]
+              Make use of reserved keywords [&quot;prev&quot;, &quot;sum&quot;, &quot;to&quot;,
+              &quot;monthlyPayDate&quot;, &quot;in&quot;]
             </li>
           </ol>
           <p className="text-gray-300 mb-4">
-            Instant Calc is designed to be intuitive and user-friendly. Start
-            exploring its capabilities and streamline your calculation process
-            today!
+            Instant Calc is designed to be intuitive and user-friendly. Start exploring its
+            capabilities and streamline your calculation process today!
           </p>
           <motion.div
             initial="hidden"
@@ -281,8 +247,7 @@ export default function About() {
               onClick={() => scrollToRef(futureWorkRef)}
               className="mt-8 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out flex items-center mx-auto"
             >
-              Future Developments{" "}
-              <LucideChevronsDown className="ml-2 w-4 h-4" />
+              Future Developments <LucideChevronsDown className="ml-2 w-4 h-4" />
             </button>
           </motion.div>
         </div>
@@ -295,36 +260,22 @@ export default function About() {
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-white mb-4">Future Work 🚀</h2>
           <p className="text-gray-300 mb-4">
-            We&apos;re constantly working to improve Instant Calc. Here are some
-            exciting features we&apos;re planning to implement:
+            We&apos;re constantly working to improve Instant Calc. Here are some exciting features
+            we&apos;re planning to implement:
           </p>
           <ul className="list-disc list-inside text-gray-300 space-y-2 mb-4">
+            <li>📊 Data Visualization: Show charts and graphs for your calculations.</li>
+            <li>📑 Multiple Tabs: Add and save more tabs for different calculation sessions.</li>
             <li>
-              📊 Data Visualization: Show charts and graphs for your
-              calculations.
+              📤 Export Functionality: Export your calculations and results in various formats.
             </li>
-            <li>
-              📑 Multiple Tabs: Add and save more tabs for different calculation
-              sessions.
-            </li>
-            <li>
-              📤 Export Functionality: Export your calculations and results in
-              various formats.
-            </li>
-            <li>
-              📅 Pay Date Setting: Set a date for pay dates and track expenses
-              that are due.
-            </li>
-            <li>
-              💾 Auto-Save: Automatically save your work to prevent data loss.
-            </li>
-            <li>
-              🔄 Sync Across Devices: Access your calculations from any device.
-            </li>
+            <li>📅 Pay Date Setting: Set a date for pay dates and track expenses that are due.</li>
+            <li>💾 Auto-Save: Automatically save your work to prevent data loss.</li>
+            <li>🔄 Sync Across Devices: Access your calculations from any device.</li>
           </ul>
           <p className="text-gray-300 mb-4">
-            Stay tuned for these exciting updates that will make Instant Calc
-            even more powerful and user-friendly!
+            Stay tuned for these exciting updates that will make Instant Calc even more powerful and
+            user-friendly!
           </p>
           <motion.div
             initial="hidden"

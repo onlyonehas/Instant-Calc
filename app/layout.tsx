@@ -8,17 +8,11 @@ export const metadata = {
   description: "Natural language calculator",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head></head>
-      <body className={(inter.className, "min-h-screen flex flex-col")}>
-        {children}
-      </body>
+      <body className={(inter.className, "min-h-screen flex flex-col")}>{children}</body>
     </html>
   );
 }

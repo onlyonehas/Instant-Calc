@@ -1,17 +1,24 @@
 import { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { FirebaseApp, getApps } from "firebase/app";
 
 export const useCustomAuth = (): User | null => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const auth = getAuth();
+    if (!getApps().length) return;
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
+    try {
+      const auth = getAuth();
 
-    return () => unsubscribe();
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setUser(user);
+      });
+
+      return () => unsubscribe();
+    } catch {
+      // Firebase auth unavailable
+    }
   }, []);
 
   return user;

@@ -22,6 +22,6 @@ export const getDaysLeft = (monthlyPayDate: number) => {
   const diffInMs = new Date(nextPayDate).valueOf() - new Date().valueOf();
   const diffInDays = Math.round(diffInMs / (1000 * 60 * 60 * 24));
   // const nextDate = nextPayDate.toLocaleDateString("en-GB")
-  const nextPayMsg = `Next pay in ${diffInDays} Days`;
+  const nextPayMsg = `Pay in ${diffInDays}d`;
   return nextPayMsg;
 };
