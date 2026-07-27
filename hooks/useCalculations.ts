@@ -9,7 +9,19 @@ export interface Notebook {
   name: string;
   input: string;
   output: string | null;
+  color?: string;
 }
+
+export const NOTEBOOK_COLORS = [
+  "#3b82f6",
+  "#ef4444",
+  "#22c55e",
+  "#f59e0b",
+  "#a855f7",
+  "#ec4899",
+  "#14b8a6",
+  "#f97316",
+];
 
 interface NotebooksData {
   notebooks: Notebook[];
@@ -69,7 +81,13 @@ export const useCalculations = (): UseCalculationsResult => {
       } else if (data.input !== undefined) {
         setNotebooksData({
           notebooks: [
-            { id: "1", name: "General Expense", input: data.input, output: data.output ?? null },
+            {
+              id: "1",
+              name: "General Expense",
+              input: data.input,
+              output: data.output ?? null,
+              color: NOTEBOOK_COLORS[0],
+            },
           ],
           activeNotebookId: "1",
         });

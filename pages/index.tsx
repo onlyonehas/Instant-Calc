@@ -37,7 +37,19 @@ type Notebook = {
   name: string;
   input: string;
   output: string | null;
+  color?: string;
 };
+
+const NOTEBOOK_COLORS = [
+  "#3b82f6",
+  "#ef4444",
+  "#22c55e",
+  "#f59e0b",
+  "#a855f7",
+  "#ec4899",
+  "#14b8a6",
+  "#f97316",
+];
 
 let nextId = 1;
 
@@ -45,7 +57,13 @@ export default function Index() {
   const user: User | null = useCustomAuth();
   const { notebooksData, saveNotebooks, isLoading } = useCalculations();
   const [notebooks, setNotebooks] = useState<Notebook[]>([
-    { id: String(nextId++), name: "General Expense", input: initialInput, output: null },
+    {
+      id: String(nextId++),
+      name: "General Expense",
+      input: initialInput,
+      output: null,
+      color: NOTEBOOK_COLORS[0],
+    },
   ]);
   const [activeNotebookId, setActiveNotebookId] = useState("1");
   const [, setSum] = useState(0);
@@ -59,6 +77,8 @@ export default function Index() {
 
   const [isEditingName, setIsEditingName] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const [colorPickerFor, setColorPickerFor] = useState<string | null>(null);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const outputRef = useRef<HTMLTextAreaElement>(null);
@@ -69,6 +89,8 @@ export default function Index() {
   const originalValuesRef = useRef<{ [name: string]: number }>({});
   const [scrollTop, setScrollTop] = useState(0);
   const iconContainerRef = useRef<HTMLDivElement>(null);
+
+  const importFileRef = useRef<HTMLInputElement>(null);
 
   const [deductionDates, setDeductionDates] = useState<{
     [name: string]: number;
@@ -94,6 +116,8 @@ export default function Index() {
     );
   const setActiveName = (val: string) =>
     setNotebooks((prev) => prev.map((n) => (n.id === activeNotebookId ? { ...n, name: val } : n)));
+  const setNotebookColor = (id: string, color: string) =>
+    setNotebooks((prev) => prev.map((n) => (n.id === id ? { ...n, color } : n)));
 
   const input = activeNotebook?.input ?? "";
   const output = activeNotebook?.output ?? null;
@@ -110,7 +134,13 @@ export default function Index() {
   useEffect(() => {
     if (!user) {
       setNotebooks([
-        { id: String(nextId++), name: "General Expense", input: initialInput, output: null },
+        {
+          id: String(nextId++),
+          name: "General Expense",
+          input: initialInput,
+          output: null,
+          color: NOTEBOOK_COLORS[0],
+        },
       ]);
       setActiveNotebookId("1");
       setDeductionDates({});
@@ -135,6 +165,18 @@ export default function Index() {
       nameInputRef.current.select();
     }
   }, [isEditingName]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
+        setColorPickerFor(null);
+      }
+    };
+    if (colorPickerFor) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [colorPickerFor]);
 
   const highlightSyntax = useCallback((editor: any) => {
     if (!editor) return;
@@ -300,6 +342,50 @@ export default function Index() {
     }
   };
 
+  const exportNotebooks = () => {
+    const data = { notebooks, activeNotebookId, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "instant-calc-notebooks.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importNotebooks = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const data = JSON.parse(evt.target?.result as string);
+        if (!data.notebooks || !Array.isArray(data.notebooks) || !data.notebooks.length) {
+          alert("Invalid file: no notebooks found.");
+          return;
+        }
+        for (const nb of data.notebooks) {
+          if (!nb.id || !nb.name || nb.input === undefined) {
+            alert("Invalid file: notebook missing required fields (id, name, input).");
+            return;
+          }
+        }
+        const merged = data.notebooks.map((nb: Notebook) => ({
+          ...nb,
+          color: nb.color || NOTEBOOK_COLORS[0],
+        }));
+        setNotebooks(merged);
+        setActiveNotebookId(data.activeNotebookId || merged[0].id);
+        quillEditorRef.current = null;
+        if (user) saveNotebooks(merged, data.activeNotebookId || merged[0].id);
+      } catch {
+        alert("Invalid file: could not parse JSON.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
   const clearButtonCallback = () => {
     setActiveInput("");
     setActiveOutput("");
@@ -307,7 +393,14 @@ export default function Index() {
 
   const addNotebook = () => {
     const id = String(nextId++);
-    const nb: Notebook = { id, name: `Notebook ${notebooks.length + 1}`, input: "", output: null };
+    const color = NOTEBOOK_COLORS[notebooks.length % NOTEBOOK_COLORS.length];
+    const nb: Notebook = {
+      id,
+      name: `Notebook ${notebooks.length + 1}`,
+      input: "",
+      output: null,
+      color,
+    };
     setNotebooks((prev) => [...prev, nb]);
     setActiveNotebookId(id);
     quillEditorRef.current = null;
@@ -510,12 +603,7 @@ export default function Index() {
                 {notebooks.map((nb) => (
                   <div
                     key={nb.id}
-                    onClick={() => {
-                      if (nb.id !== activeNotebookId) {
-                        switchNotebook(nb.id);
-                      }
-                    }}
-                    className={`group flex items-center gap-1 px-2.5 py-1 rounded-md cursor-pointer text-sm whitespace-nowrap transition-colors ${
+                    className={`group relative flex items-center gap-1 px-2.5 py-1 rounded-md cursor-pointer text-sm whitespace-nowrap transition-colors ${
                       nb.id === activeNotebookId
                         ? "bg-white dark:bg-gray-700 shadow text-gray-800 dark:text-white font-medium"
                         : "text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50"
@@ -533,7 +621,21 @@ export default function Index() {
                       />
                     ) : (
                       <>
-                        <span>{nb.name}</span>
+                        <span
+                          className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
+                          style={{ backgroundColor: nb.color || NOTEBOOK_COLORS[0] }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setColorPickerFor((prev) => (prev === nb.id ? null : nb.id));
+                          }}
+                        />
+                        <span
+                          onClick={() => {
+                            if (nb.id !== activeNotebookId) switchNotebook(nb.id);
+                          }}
+                        >
+                          {nb.name}
+                        </span>
                         {nb.id === activeNotebookId && (
                           <Edit2
                             onClick={(e) => {
@@ -553,6 +655,30 @@ export default function Index() {
                         }}
                         className="w-3 h-3 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                       />
+                    )}
+                    {colorPickerFor === nb.id && (
+                      <div
+                        ref={colorPickerRef}
+                        className="absolute top-full left-0 mt-1 z-50 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 p-1.5 flex gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {NOTEBOOK_COLORS.map((c) => (
+                          <span
+                            key={c}
+                            className={`w-5 h-5 rounded-full cursor-pointer border-2 transition-all hover:scale-110 ${
+                              nb.color === c
+                                ? "border-gray-900 dark:border-white scale-110"
+                                : "border-transparent"
+                            }`}
+                            style={{ backgroundColor: c }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setNotebookColor(nb.id, c);
+                              setColorPickerFor(null);
+                            }}
+                          />
+                        ))}
+                      </div>
                     )}
                   </div>
                 ))}
@@ -574,6 +700,51 @@ export default function Index() {
                   ) : (
                     <Moon className="w-4 h-4 md:w-5 md:h-5" />
                   )}
+                </button>
+                <button
+                  onClick={exportNotebooks}
+                  className="p-1.5 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+                  title="Export notebooks"
+                >
+                  <svg
+                    className="w-4 h-4 md:w-5 md:h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 11l5-5m0 0l5 5m-5-5v12"
+                    />
+                  </svg>
+                </button>
+                <input
+                  ref={importFileRef}
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={importNotebooks}
+                />
+                <button
+                  onClick={() => importFileRef.current?.click()}
+                  className="p-1.5 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+                  title="Import notebooks"
+                >
+                  <svg
+                    className="w-4 h-4 md:w-5 md:h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 13l5 5m0 0l5-5m-5 5V6"
+                    />
+                  </svg>
                 </button>
                 {!user ? (
                   <button
