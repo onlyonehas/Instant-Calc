@@ -135,7 +135,8 @@ export default function Index() {
 
   useEffect(() => {
     if (!user) {
-      setNotebooks([
+      nextId = 1;
+      const defaultNotebooks: Notebook[] = [
         {
           id: String(nextId++),
           name: "General Expense",
@@ -143,8 +144,9 @@ export default function Index() {
           output: null,
           color: NOTEBOOK_COLORS[0],
         },
-      ]);
-      setActiveNotebookId("1");
+      ];
+      setNotebooks(defaultNotebooks);
+      setActiveNotebookId(defaultNotebooks[0].id);
       setDeductionDates({});
       localStorage.removeItem("deductionDates");
       quillEditorRef.current = null;
@@ -269,37 +271,29 @@ export default function Index() {
     [input, highlightSyntax, attachQuillScroll, getQuillEditor],
   );
 
-  useEffect(() => {
+  const syncEditor = useCallback(() => {
     const editor = getQuillEditor();
-    if (!editor) return;
+    if (!editor) return false;
+    const currentInput = latestInputRef.current;
     const currentText = (editor.getText() || "").replace(/\n$/, "");
-    if (currentText !== input) {
-      editor.setText(input || "");
+    if (currentText !== currentInput) {
+      editor.setText(currentInput || "");
     }
     requestAnimationFrame(() => highlightSyntax(editor));
     attachQuillScroll();
-  }, [input, highlightSyntax, getQuillEditor, attachQuillScroll]);
+    return true;
+  }, [highlightSyntax, getQuillEditor, attachQuillScroll]);
 
   useEffect(() => {
-    const rafRef = { current: 0 };
+    let rafId = 0;
+    if (syncEditor()) return;
     const retry = () => {
-      const editor = getQuillEditor();
-      if (!editor) {
-        rafRef.current = requestAnimationFrame(retry);
-        return;
-      }
-      if (latestInputRef.current) {
-        const text = (editor.getText() || "").replace(/\n$/, "");
-        if (text !== latestInputRef.current) {
-          editor.setText(latestInputRef.current || "");
-        }
-        requestAnimationFrame(() => highlightSyntax(editor));
-        attachQuillScroll();
-      }
+      if (syncEditor()) return;
+      rafId = requestAnimationFrame(retry);
     };
-    rafRef.current = requestAnimationFrame(retry);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
+    rafId = requestAnimationFrame(retry);
+    return () => cancelAnimationFrame(rafId);
+  }, [syncEditor, input]);
 
   useEffect(() => {
     attachQuillScroll();
