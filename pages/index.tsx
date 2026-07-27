@@ -572,7 +572,7 @@ export default function Index() {
                 value={output || ""}
                 onScroll={handleOutputScroll}
                 placeholder="Output will appear here..."
-                className="w-full bg-transparent text-gray-800 dark:text-green-500 rounded-none resize-none overflow-y-auto font-mono text-xs md:text-2xl lg:text-3xl leading-relaxed whitespace-nowrap"
+                className="w-full bg-transparent text-gray-800 dark:text-green-500 rounded-none resize-none overflow-hidden font-mono text-xs md:text-2xl lg:text-3xl leading-relaxed whitespace-nowrap"
                 style={{
                   backgroundImage:
                     "repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, var(--row-alt) 48px, var(--row-alt) 95px, #999 95px, #999 96px)",
