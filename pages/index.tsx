@@ -147,6 +147,17 @@ export default function Index() {
       setActiveNotebookId("1");
       setDeductionDates({});
       localStorage.removeItem("deductionDates");
+      quillEditorRef.current = null;
+      setTimeout(() => {
+        const editor = getQuillEditor();
+        if (editor) {
+          const currentText = (editor.getText() || "").replace(/\n$/, "");
+          if (currentText !== latestInputRef.current) {
+            editor.setText(latestInputRef.current || "");
+          }
+          requestAnimationFrame(() => highlightSyntax(editor));
+        }
+      }, 0);
     }
   }, [user]);
 
@@ -270,26 +281,25 @@ export default function Index() {
   }, [input, highlightSyntax, getQuillEditor, attachQuillScroll]);
 
   useEffect(() => {
-    let cancelled = false;
+    const rafRef = { current: 0 };
     const retry = () => {
-      if (cancelled) return;
       const editor = getQuillEditor();
       if (!editor) {
-        requestAnimationFrame(retry);
+        rafRef.current = requestAnimationFrame(retry);
         return;
       }
-      const text = (editor.getText() || "").replace(/\n$/, "");
-      if (text !== latestInputRef.current) {
-        editor.setText(latestInputRef.current || "");
+      if (latestInputRef.current) {
+        const text = (editor.getText() || "").replace(/\n$/, "");
+        if (text !== latestInputRef.current) {
+          editor.setText(latestInputRef.current || "");
+        }
+        requestAnimationFrame(() => highlightSyntax(editor));
+        attachQuillScroll();
       }
-      requestAnimationFrame(() => highlightSyntax(editor));
-      attachQuillScroll();
     };
-    requestAnimationFrame(retry);
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    rafRef.current = requestAnimationFrame(retry);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [user, getQuillEditor, highlightSyntax, attachQuillScroll]);
 
   useEffect(() => {
     attachQuillScroll();
@@ -925,6 +935,7 @@ export default function Index() {
           >
             <div className="flex-1 min-w-0 relative" ref={inputContainerRef}>
               <ReactQuill
+                key={user ? "auth" : "anon"}
                 defaultValue=""
                 onChange={handleQuillChange}
                 modules={quillModules}
