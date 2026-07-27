@@ -3,27 +3,34 @@
 import { Header } from "@/components/Header";
 import { PopUpModal } from "@/components/PopUpModal";
 import { useDarkMode } from "@/contexts/DarkModeContext";
+import { database } from "@/pages/_document";
+import { push, ref, serverTimestamp } from "firebase/database";
 import Head from "next/head";
 import { useState } from "react";
+
+const EMPTY_FORM = { name: "", email: "", description: "" };
 
 export default function NewFeatures() {
   const { darkMode } = useDarkMode();
 
   const [singOutModal, toggleSingOutModal] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    description: "",
-  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Submit the form data to your backend here
-    console.log("Form Data Submitted:", formData);
+    if (database) {
+      await push(ref(database, "featureRequests"), {
+        ...formData,
+        createdAt: serverTimestamp(),
+      });
+    }
+    setSubmitted(true);
+    setFormData(EMPTY_FORM);
   };
 
   return (
@@ -46,64 +53,79 @@ export default function NewFeatures() {
             <br />
             Let us know!
             <br />
-            We appreciate your feedback and are always looking for ways to improve our platform.
+            We review every request and prioritize based on community interest.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium">
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                id="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium ">
-                Feature Description
-              </label>
-              <textarea
-                name="description"
-                id="description"
-                rows={4}
-                value={formData.description}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border dark:border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                required
-              ></textarea>
-            </div>
-
-            <div className="text-center">
+          {submitted ? (
+            <div className="text-center py-16">
+              <p className="text-2xl font-semibold text-green-400 mb-2">Thank you!</p>
+              <p className="text-gray-400">
+                We review every request and keep the community posted.
+              </p>
               <button
-                type="submit"
-                className="w-full text-white bg-blue-500 px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onClick={() => setSubmitted(false)}
+                className="mt-6 text-sm text-purple-400 hover:text-purple-300 underline"
               >
-                Submit Request
+                Submit another
               </button>
             </div>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium ">
+                  Feature Description
+                </label>
+                <textarea
+                  name="description"
+                  id="description"
+                  rows={4}
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-2 border dark:border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  required
+                ></textarea>
+              </div>
+
+              <div className="text-center">
+                <button
+                  type="submit"
+                  className="w-full text-white bg-blue-500 px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Submit Request
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </>

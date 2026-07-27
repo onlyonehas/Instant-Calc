@@ -3,7 +3,6 @@ import { acceptedCurrencySymbols } from "../currencies";
 export const isCurrency = async (name: string) => {
   let withToCode: string | boolean = false;
   const hasIn = name.includes("in");
-  console.log(hasIn);
   if (hasIn) {
     const expression = name
       .split("in")

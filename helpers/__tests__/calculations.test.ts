@@ -62,6 +62,18 @@ describe("parseVariableLine", () => {
       isCommented: false,
     });
   });
+
+  it("returns null for empty string", () => {
+    expect(parseVariableLine("")).toBeNull();
+  });
+
+  it("returns null for whitespace-only line", () => {
+    expect(parseVariableLine("   ")).toBeNull();
+  });
+
+  it("returns null for tab-only line", () => {
+    expect(parseVariableLine("\t")).toBeNull();
+  });
 });
 
 describe("getAutoCommentedLines", () => {
@@ -173,6 +185,31 @@ describe("getAutoCommentedLines", () => {
       10,
     );
     expect(result).toEqual(["rent=1000"]);
+  });
+
+  it("preserves blank lines through auto-commenting", () => {
+    const result = getAutoCommentedLines(
+      ["rent: 1000", "", "food: 250"],
+      {},
+      false,
+      10,
+    );
+    expect(result).toEqual(["rent: 1000", "", "food: 250"]);
+  });
+
+  it("handles blank lines between commented and active lines", () => {
+    const result = getAutoCommentedLines(
+      ["//rent: 1000", "", "food: 250"],
+      { rent: 15 },
+      false,
+      20,
+    );
+    expect(result).toEqual(["//rent: 1000", "", "food: 250"]);
+  });
+
+  it("handles trailing blank line", () => {
+    const result = getAutoCommentedLines(["rent: 1000", ""], {}, false, 10);
+    expect(result).toEqual(["rent: 1000", ""]);
   });
 });
 
