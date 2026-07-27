@@ -72,13 +72,16 @@ export default function Index() {
 
   const [deductionDates, setDeductionDates] = useState<{
     [name: string]: number;
-  }>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("deductionDates");
-      return stored ? JSON.parse(stored) : {};
+  }>({});
+
+  useEffect(() => {
+    const stored = localStorage.getItem("deductionDates");
+    if (stored) {
+      try {
+        setDeductionDates(JSON.parse(stored));
+      } catch {}
     }
-    return {};
-  });
+  }, []);
   const [showDatePickerFor, setShowDatePickerFor] = useState<string | null>(null);
   const [datePickerValue, setDatePickerValue] = useState<string>("1");
   const [showNextMonth, setShowNextMonth] = useState(false);
