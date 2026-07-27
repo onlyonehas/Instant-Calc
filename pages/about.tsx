@@ -33,7 +33,7 @@ const useTypewriter = (
       }, speed);
       return () => clearTimeout(timer);
     }
-  }, [text, index, speed, isDeleting, displayedText]);
+  }, [text, index, speed, isDeleting, displayedText, setIndex]);
 
   return displayedText;
 };
@@ -148,9 +148,9 @@ export default function About() {
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-white mb-4 text-center">About Instant Calc 🧮</h2>
           <p className="text-gray-300 mb-4">
-            Instant Calc is a real-time calculation notebook. Type expenses, set variables,
-            write expressions — and see results instantly on the right. Every line is evaluated
-            as you type, with support for comments, headings, and deduction tracking.
+            Instant Calc is a real-time calculation notebook. Type expenses, set variables, write
+            expressions — and see results instantly on the right. Every line is evaluated as you
+            type, with support for comments, headings, and deduction tracking.
           </p>
           <motion.div
             initial="hidden"
@@ -176,26 +176,30 @@ export default function About() {
           <h2 className="text-3xl font-bold text-center text-white mb-4">Key Features ✨</h2>
           <ul className="list-disc list-inside text-gray-300 space-y-2 mb-4">
             <li>
-              🎨 Syntax Highlighting: Headings, comments, expenses, and variables are colour-coded as you type.
+              🎨 Syntax Highlighting: Headings, comments, expenses, and variables are colour-coded
+              as you type.
             </li>
             <li>
-              ⚡ Real-Time Evaluation: Results appear instantly in the output panel — no buttons needed.
+              ⚡ Real-Time Evaluation: Results appear instantly in the output panel — no buttons
+              needed.
             </li>
             <li>
-              🔤 Variable Assignment: Use <code className="text-purple-400">name = expression</code> or <code className="text-purple-400">name: expression</code> to store values.
+              🔤 Variable Assignment: Use <code className="text-purple-400">name = expression</code>{" "}
+              or <code className="text-purple-400">name: expression</code> to store values.
             </li>
             <li>
-              💬 Comments &amp; Headings: Organise with <code className="text-purple-400">//</code> comments and <code className="text-purple-400">#</code> headings.
+              💬 Comments &amp; Headings: Organise with{" "}
+              <code className="text-purple-400">{"//"}</code> comments and{" "}
+              <code className="text-purple-400">{"#"}</code> headings.
             </li>
             <li>
               📅 Deduction Tracking: Set a deduction day per expense; past-due lines auto-comment.
             </li>
             <li>
-              🔄 Cloud Sync: Log in to save your notebook to Firebase and pick up where you left off.
+              🔄 Cloud Sync: Log in to save your notebook to Firebase and pick up where you left
+              off.
             </li>
-            <li>
-              🌙 Dark Mode: Toggle between light and dark themes.
-            </li>
+            <li>🌙 Dark Mode: Toggle between light and dark themes.</li>
           </ul>
           <motion.div
             initial="hidden"
@@ -218,11 +222,27 @@ export default function About() {
           <ol className="list-decimal list-inside text-gray-300 space-y-2 mb-4">
             <li>Type your calculations in the rich-text editor (left panel).</li>
             <li>Each line is evaluated automatically — output appears on the right.</li>
-            <li>Use <code className="text-purple-400">name = value</code> or <code className="text-purple-400">name: value</code> to store a variable.</li>
-            <li>Use <code className="text-purple-400">//</code> to comment out a line, <code className="text-purple-400">#</code> for headings.</li>
-            <li>Reserved keywords: <code className="text-purple-400">prev</code> (last result), <code className="text-purple-400">sum</code> (running total), <code className="text-purple-400">monthlyPayDate</code> (pay-day countdown).</li>
-            <li>Click the calendar icon next to an expense to set its deduction day — it auto-comments when past due.</li>
-            <li>Toggle <strong>Due Next</strong> to uncomment all deduction lines for next-month planning.</li>
+            <li>
+              Use <code className="text-purple-400">name = value</code> or{" "}
+              <code className="text-purple-400">name: value</code> to store a variable.
+            </li>
+            <li>
+              Use <code className="text-purple-400">{"//"}</code> to comment out a line,{" "}
+              <code className="text-purple-400">{"#"}</code> for headings.
+            </li>
+            <li>
+              Reserved keywords: <code className="text-purple-400">prev</code> (last result),{" "}
+              <code className="text-purple-400">sum</code> (running total),{" "}
+              <code className="text-purple-400">monthlyPayDate</code> (pay-day countdown).
+            </li>
+            <li>
+              Click the calendar icon next to an expense to set its deduction day — it auto-comments
+              when past due.
+            </li>
+            <li>
+              Toggle <strong>Due Next</strong> to uncomment all deduction lines for next-month
+              planning.
+            </li>
             <li>Sign in to save your notebook automatically to the cloud.</li>
           </ol>
           <p className="text-gray-300 mb-4">
@@ -261,7 +281,9 @@ export default function About() {
             <li>📤 Export to CSV / PDF.</li>
             <li>📱 Progressive Web App — install on your phone.</li>
             <li>🌐 Real-time multi-user collaboration.</li>
-            <li>🧮 Currency conversion (<code className="text-purple-400">100 usd in gbp</code>).</li>
+            <li>
+              🧮 Currency conversion (<code className="text-purple-400">100 usd in gbp</code>).
+            </li>
           </ul>
           <p className="text-gray-300 mb-4">
             Stay tuned for these exciting updates that will make Instant Calc even more powerful and
