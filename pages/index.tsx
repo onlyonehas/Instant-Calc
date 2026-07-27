@@ -13,7 +13,7 @@ import { database } from "@/pages/_document";
 import { User } from "firebase/auth";
 import { get, ref, set } from "firebase/database";
 import { motion } from "framer-motion";
-import { Calendar, Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
+import { Calendar, CloudOff, Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import "tailwindcss/tailwind.css";
@@ -166,8 +166,11 @@ export default function Index() {
 
   const handleQuillChange = useCallback(
     (_value: string, _delta: any, source: string, _editor: any) => {
+      if (_editor && !quillEditorRef.current) {
+        quillEditorRef.current = _editor;
+      }
       if (source !== "user") return;
-      const editor = getQuillEditor();
+      const editor = _editor || getQuillEditor();
       if (!editor) return;
       attachQuillScroll();
       const text = (editor.getText() || "").replace(/\n$/, "");
@@ -180,14 +183,23 @@ export default function Index() {
   );
 
   useEffect(() => {
-    const editor = getQuillEditor();
-    if (!editor) return;
-    const currentText = (editor.getText() || "").replace(/\n$/, "");
-    if (currentText !== input) {
-      editor.setText(input || "");
-    }
-    requestAnimationFrame(() => highlightSyntax(editor));
-  }, [input, highlightSyntax, getQuillEditor]);
+    let rafId: number;
+    const trySync = () => {
+      const editor = getQuillEditor();
+      if (!editor) {
+        rafId = requestAnimationFrame(trySync);
+        return;
+      }
+      const currentText = (editor.getText() || "").replace(/\n$/, "");
+      if (currentText !== input) {
+        editor.setText(input || "");
+      }
+      requestAnimationFrame(() => highlightSyntax(editor));
+      attachQuillScroll();
+    };
+    trySync();
+    return () => cancelAnimationFrame(rafId);
+  }, [input, highlightSyntax, getQuillEditor, attachQuillScroll]);
 
   useEffect(() => {
     attachQuillScroll();
@@ -457,7 +469,18 @@ export default function Index() {
                   <Moon className="w-4 h-4 md:w-5 md:h-5" />
                 )}
               </button>
-              {user && (
+              {!user ? (
+                <button
+                  onClick={() => toggleSingOutModal(true)}
+                  className="group relative px-2.5 py-1.5 md:px-4 md:py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
+                >
+                  <CloudOff className="w-3.5 h-3.5 md:w-5 md:h-5 md:mr-2" />
+                  <span className="hidden md:inline">Sign In</span>
+                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Sign in to save your notebook to the cloud
+                  </div>
+                </button>
+              ) : (
                 <button
                   onClick={saveToDatabase}
                   className="px-2.5 py-1.5 md:px-4 md:py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
@@ -539,18 +562,6 @@ export default function Index() {
               </motion.div>
             );
           })()}
-
-          {!user && (
-            <div className="mx-auto mb-4 max-w-4xl flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
-              <span>Sign in to save your notebook to the cloud and access it from anywhere.</span>
-              <button
-                onClick={() => toggleSingOutModal(true)}
-                className="ml-4 rounded-md bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
-              >
-                Sign In
-              </button>
-            </div>
-          )}
 
           <motion.div
             className="flex-grow flex gap-0 bg-yellow-100 dark:bg-gray-800 rounded-b-lg shadow-lg p-4"
