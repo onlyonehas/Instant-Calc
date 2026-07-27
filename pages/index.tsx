@@ -621,14 +621,22 @@ export default function Index() {
                       />
                     ) : (
                       <>
-                        <span
-                          className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
-                          style={{ backgroundColor: nb.color || NOTEBOOK_COLORS[0] }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setColorPickerFor((prev) => (prev === nb.id ? null : nb.id));
-                          }}
-                        />
+                        <div className="group relative">
+                          <span
+                            className={`w-2.5 h-2.5 rounded-full inline-block flex-shrink-0 ${user ? "cursor-pointer" : "cursor-not-allowed"}`}
+                            style={{ backgroundColor: nb.color || NOTEBOOK_COLORS[0] }}
+                            onClick={(e) => {
+                              if (!user) return;
+                              e.stopPropagation();
+                              setColorPickerFor((prev) => (prev === nb.id ? null : nb.id));
+                            }}
+                          />
+                          {!user && (
+                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                              Sign in for more features
+                            </div>
+                          )}
+                        </div>
                         <span
                           onClick={() => {
                             if (nb.id !== activeNotebookId) switchNotebook(nb.id);
@@ -637,24 +645,40 @@ export default function Index() {
                           {nb.name}
                         </span>
                         {nb.id === activeNotebookId && (
-                          <Edit2
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleNotebookNameClick();
-                            }}
-                            className="w-3 h-3 text-gray-400 hover:text-blue-500 transition-colors"
-                          />
+                          <div className="group relative">
+                            <Edit2
+                              onClick={(e) => {
+                                if (!user) return;
+                                e.stopPropagation();
+                                handleNotebookNameClick();
+                              }}
+                              className={`w-3 h-3 transition-colors ${user ? "text-gray-400 hover:text-blue-500 cursor-pointer" : "text-gray-300 dark:text-gray-600 cursor-not-allowed"}`}
+                            />
+                            {!user && (
+                              <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                Sign in for more features
+                              </div>
+                            )}
+                          </div>
                         )}
                       </>
                     )}
                     {notebooks.length > 1 && (
-                      <X
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeNotebook(nb.id);
-                        }}
-                        className="w-3 h-3 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                      />
+                      <div className="group relative">
+                        <X
+                          onClick={(e) => {
+                            if (!user) return;
+                            e.stopPropagation();
+                            removeNotebook(nb.id);
+                          }}
+                          className={`w-3 h-3 transition-opacity ${user ? "text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer" : "text-gray-300 dark:text-gray-600 cursor-not-allowed opacity-30"}`}
+                        />
+                        {!user && (
+                          <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            Sign in for more features
+                          </div>
+                        )}
+                      </div>
                     )}
                     {colorPickerFor === nb.id && (
                       <div
