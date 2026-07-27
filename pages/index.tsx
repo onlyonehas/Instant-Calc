@@ -79,6 +79,13 @@ export default function Index() {
   }, [calculations]);
 
   useEffect(() => {
+    if (outputRef.current) {
+      outputRef.current.style.height = "auto";
+      outputRef.current.style.height = `${outputRef.current.scrollHeight}px`;
+    }
+  }, [output]);
+
+  useEffect(() => {
     handleInput();
   }, [input]);
 
