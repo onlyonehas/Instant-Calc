@@ -122,6 +122,8 @@ export default function Index() {
   const input = activeNotebook?.input ?? "";
   const output = activeNotebook?.output ?? null;
   const notebookName = activeNotebook?.name ?? "";
+  const latestInputRef = useRef(input);
+  latestInputRef.current = input;
 
   useEffect(() => {
     if (notebooksData && notebooksData.notebooks.length) {
@@ -257,23 +259,37 @@ export default function Index() {
   );
 
   useEffect(() => {
-    let rafId: number;
-    const trySync = () => {
+    const editor = getQuillEditor();
+    if (!editor) return;
+    const currentText = (editor.getText() || "").replace(/\n$/, "");
+    if (currentText !== input) {
+      editor.setText(input || "");
+    }
+    requestAnimationFrame(() => highlightSyntax(editor));
+    attachQuillScroll();
+  }, [input, highlightSyntax, getQuillEditor, attachQuillScroll]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const retry = () => {
+      if (cancelled) return;
       const editor = getQuillEditor();
       if (!editor) {
-        rafId = requestAnimationFrame(trySync);
+        requestAnimationFrame(retry);
         return;
       }
-      const currentText = (editor.getText() || "").replace(/\n$/, "");
-      if (currentText !== input) {
-        editor.setText(input || "");
+      const text = (editor.getText() || "").replace(/\n$/, "");
+      if (text !== latestInputRef.current) {
+        editor.setText(latestInputRef.current || "");
       }
       requestAnimationFrame(() => highlightSyntax(editor));
       attachQuillScroll();
     };
-    trySync();
-    return () => cancelAnimationFrame(rafId);
-  }, [input, highlightSyntax, getQuillEditor, attachQuillScroll]);
+    requestAnimationFrame(retry);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     attachQuillScroll();
