@@ -180,6 +180,14 @@ export default function Index() {
     requestAnimationFrame(() => highlightSyntax(editor));
   }, [input, highlightSyntax, getQuillEditor]);
 
+  useEffect(() => {
+    attachQuillScroll();
+    const container = quillScrollRef.current;
+    return () => {
+      container?.removeEventListener("scroll", handleInputScroll);
+    };
+  }, [attachQuillScroll, handleInputScroll]);
+
   const quillModules = { toolbar: false };
   const quillFormats = ["bold", "italic", "color"];
 
