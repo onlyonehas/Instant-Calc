@@ -299,7 +299,7 @@ export default function Index() {
     };
     rafRef.current = requestAnimationFrame(retry);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [user, getQuillEditor, highlightSyntax, attachQuillScroll]);
+  }, []);
 
   useEffect(() => {
     attachQuillScroll();
@@ -935,7 +935,6 @@ export default function Index() {
           >
             <div className="flex-1 min-w-0 relative" ref={inputContainerRef}>
               <ReactQuill
-                key={user ? "auth" : "anon"}
                 defaultValue=""
                 onChange={handleQuillChange}
                 modules={quillModules}
