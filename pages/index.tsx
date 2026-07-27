@@ -13,7 +13,7 @@ import { app, database } from "@/pages/_document";
 import { GoogleAuthProvider, User, getAuth, signInWithPopup } from "firebase/auth";
 import { get, ref, set } from "firebase/database";
 import { motion } from "framer-motion";
-import { Calendar, CloudOff, Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
+import { Calendar, CloudOff, Edit2, Moon, Plus, Save, Sun, Trash2, X } from "lucide-react";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import "tailwindcss/tailwind.css";
@@ -32,11 +32,22 @@ food: 250
 Variable = prev*2
 Total=sum-variable`;
 
+type Notebook = {
+  id: string;
+  name: string;
+  input: string;
+  output: string | null;
+};
+
+let nextId = 1;
+
 export default function Index() {
   const user: User | null = useCustomAuth();
   const { calculations, saveCalculations, isLoading } = useCalculations();
-  const [input, setInput] = useState<string>(initialInput);
-  const [output, setOutput] = useState<string | null>();
+  const [notebooks, setNotebooks] = useState<Notebook[]>([
+    { id: String(nextId++), name: "General Expense", input: initialInput, output: null },
+  ]);
+  const [activeNotebookId, setActiveNotebookId] = useState("1");
   const [, setSum] = useState(0);
   const [, setPrev] = useState(0);
 
@@ -44,7 +55,8 @@ export default function Index() {
   const [singOutModal, toggleSingOutModal] = useState(false);
   const [clearButtonModal, toggleClearButtonModal] = useState(false);
 
-  const [notebookName, setNotebookName] = useState("General Expense");
+  const activeNotebook = notebooks.find((n) => n.id === activeNotebookId)!;
+
   const [isEditingName, setIsEditingName] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -71,17 +83,32 @@ export default function Index() {
   const [datePickerValue, setDatePickerValue] = useState<string>("1");
   const [showNextMonth, setShowNextMonth] = useState(false);
 
+  const setActiveInput = (val: string) =>
+    setNotebooks((prev) => prev.map((n) => (n.id === activeNotebookId ? { ...n, input: val } : n)));
+  const setActiveOutput = (val: string | null) =>
+    setNotebooks((prev) =>
+      prev.map((n) => (n.id === activeNotebookId ? { ...n, output: val } : n)),
+    );
+  const setActiveName = (val: string) =>
+    setNotebooks((prev) => prev.map((n) => (n.id === activeNotebookId ? { ...n, name: val } : n)));
+
+  const input = activeNotebook?.input ?? "";
+  const output = activeNotebook?.output ?? null;
+  const notebookName = activeNotebook?.name ?? "";
+
   useEffect(() => {
     if (calculations) {
-      setInput(calculations.input);
-      setOutput(calculations.output);
+      setActiveInput(calculations.input);
+      setActiveOutput(calculations.output);
     }
   }, [calculations]);
 
   useEffect(() => {
     if (!user) {
-      setInput(initialInput);
-      setOutput("");
+      setNotebooks([
+        { id: String(nextId++), name: "General Expense", input: initialInput, output: null },
+      ]);
+      setActiveNotebookId("1");
       setDeductionDates({});
       localStorage.removeItem("deductionDates");
     }
@@ -176,7 +203,7 @@ export default function Index() {
       attachQuillScroll();
       const text = (editor.getText() || "").replace(/\n$/, "");
       if (text !== input) {
-        setInput(text);
+        setActiveInput(text);
       }
       requestAnimationFrame(() => highlightSyntax(editor));
     },
@@ -272,8 +299,34 @@ export default function Index() {
   };
 
   const clearButtonCallback = () => {
-    setInput("");
-    setOutput("");
+    setActiveInput("");
+    setActiveOutput("");
+  };
+
+  const addNotebook = () => {
+    const id = String(nextId++);
+    const nb: Notebook = { id, name: `Notebook ${notebooks.length + 1}`, input: "", output: null };
+    setNotebooks((prev) => [...prev, nb]);
+    setActiveNotebookId(id);
+    quillEditorRef.current = null;
+  };
+
+  const removeNotebook = (id: string) => {
+    if (notebooks.length <= 1) return;
+    setNotebooks((prev) => prev.filter((n) => n.id !== id));
+    if (activeNotebookId === id) {
+      const idx = notebooks.findIndex((n) => n.id === id);
+      const next = notebooks[idx - 1] || notebooks[idx + 1];
+      setActiveNotebookId(next.id);
+      quillEditorRef.current = null;
+    }
+  };
+
+  const switchNotebook = (id: string) => {
+    if (id === activeNotebookId) return;
+    setIsEditingName(false);
+    setActiveNotebookId(id);
+    quillEditorRef.current = null;
   };
 
   const clearButton = () => {
@@ -282,7 +335,7 @@ export default function Index() {
 
   const handleInput = useCallback(async () => {
     if (!input) {
-      setOutput("");
+      setActiveOutput("");
       return;
     }
     const lines = input.split("\n");
@@ -362,7 +415,7 @@ export default function Index() {
       customOutput = "-";
     }
 
-    setOutput(newOutput);
+    setActiveOutput(newOutput);
     setSum(keywordValues.tempSum);
     setPrev(keywordValues.tempPrev);
     variablesRef.current = { ...variables };
@@ -379,7 +432,7 @@ export default function Index() {
     const newInput = processedLines.join("\n");
 
     if (newInput !== input) {
-      setInput(newInput);
+      setActiveInput(newInput);
     }
   }, [input, deductionDates, showNextMonth]);
 
@@ -392,7 +445,7 @@ export default function Index() {
   };
 
   const handleNotebookNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setNotebookName(event.target.value);
+    setActiveName(event.target.value);
   };
 
   const handleNotebookNameClick = () => {
@@ -445,73 +498,111 @@ export default function Index() {
 
         <div className="max-w-7xl mx-auto">
           <motion.div
-            className="bg-yellow-100 dark:bg-gray-800 rounded-t-lg shadow-lg p-4 flex justify-between items-center"
+            className="bg-yellow-100 dark:bg-gray-800 rounded-t-lg shadow-lg p-4"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {isEditingName ? (
-              <input
-                ref={nameInputRef}
-                type="text"
-                value={notebookName}
-                onChange={handleNotebookNameChange}
-                onBlur={handleNotebookNameBlur}
-                onKeyDown={handleNotebookNameKeyDown}
-                className="text-xl font-semibold bg-transparent text-gray-800 dark:text-white focus:outline-none border-b-2 border-gray-300 dark:border-gray-600"
-              />
-            ) : (
-              <h2
-                className="text-xl font-semibold text-gray-800 dark:text-white cursor-pointer flex items-center group"
-                onClick={handleNotebookNameClick}
-              >
-                {notebookName}
-                <Edit2 className="w-4 h-4 ml-2 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors" />
-                <span className="ml-1 text-xs text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                  rename
-                </span>
-              </h2>
-            )}
-            <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
-              <button
-                onClick={toggleDarkMode}
-                className="p-1.5 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
-              >
-                {darkMode ? (
-                  <Sun className="w-4 h-4 md:w-5 md:h-5" />
-                ) : (
-                  <Moon className="w-4 h-4 md:w-5 md:h-5" />
-                )}
-              </button>
-              {!user ? (
-                <button
-                  onClick={signInWithGoogle}
-                  className="group relative px-2.5 py-1.5 md:px-4 md:py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
-                >
-                  <CloudOff className="w-3.5 h-3.5 md:w-5 md:h-5 md:mr-2" />
-                  <span className="hidden md:inline">Sign In</span>
-                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    Sign in to save your notebook to the cloud
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1 overflow-x-auto flex-shrink min-w-0">
+                {notebooks.map((nb) => (
+                  <div
+                    key={nb.id}
+                    onClick={() => {
+                      if (nb.id !== activeNotebookId) {
+                        switchNotebook(nb.id);
+                      }
+                    }}
+                    className={`group flex items-center gap-1 px-2.5 py-1 rounded-md cursor-pointer text-sm whitespace-nowrap transition-colors ${
+                      nb.id === activeNotebookId
+                        ? "bg-white dark:bg-gray-700 shadow text-gray-800 dark:text-white font-medium"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50"
+                    }`}
+                  >
+                    {nb.id === activeNotebookId && isEditingName ? (
+                      <input
+                        ref={nameInputRef}
+                        type="text"
+                        value={notebookName}
+                        onChange={handleNotebookNameChange}
+                        onBlur={handleNotebookNameBlur}
+                        onKeyDown={handleNotebookNameKeyDown}
+                        className="w-24 md:w-32 bg-transparent text-gray-800 dark:text-white focus:outline-none border-b border-gray-300 dark:border-gray-600 text-sm"
+                      />
+                    ) : (
+                      <>
+                        <span>{nb.name}</span>
+                        {nb.id === activeNotebookId && (
+                          <Edit2
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleNotebookNameClick();
+                            }}
+                            className="w-3 h-3 text-gray-400 hover:text-blue-500 transition-colors"
+                          />
+                        )}
+                      </>
+                    )}
+                    {notebooks.length > 1 && (
+                      <X
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeNotebook(nb.id);
+                        }}
+                        className="w-3 h-3 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      />
+                    )}
                   </div>
-                </button>
-              ) : (
+                ))}
                 <button
-                  onClick={saveToDatabase}
-                  className="px-2.5 py-1.5 md:px-4 md:py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
+                  onClick={addNotebook}
+                  className="p-1 rounded-md text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50 hover:text-blue-500 transition-colors flex-shrink-0"
+                  title="Add notebook"
                 >
-                  <Save className="w-3.5 h-3.5 md:w-5 md:h-5 md:mr-2" />
-                  <span className="hidden md:inline">Save</span>
+                  <Plus className="w-5 h-5" />
                 </button>
-              )}
-              {user && (
+              </div>
+              <div className="flex flex-wrap gap-1.5 md:gap-2 items-center flex-shrink-0">
                 <button
-                  onClick={clearButton}
-                  className="px-2.5 py-1.5 md:px-4 md:md:py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
+                  onClick={toggleDarkMode}
+                  className="p-1.5 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
                 >
-                  <Trash2 className="w-3.5 h-3.5 md:w-5 md:h-5 md:mr-2" />
-                  <span className="hidden md:inline">Clear</span>
+                  {darkMode ? (
+                    <Sun className="w-4 h-4 md:w-5 md:h-5" />
+                  ) : (
+                    <Moon className="w-4 h-4 md:w-5 md:h-5" />
+                  )}
                 </button>
-              )}
+                {!user ? (
+                  <button
+                    onClick={signInWithGoogle}
+                    className="group relative px-2.5 py-1.5 md:px-4 md:py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
+                  >
+                    <CloudOff className="w-3.5 h-3.5 md:w-5 md:h-5 md:mr-2" />
+                    <span className="hidden md:inline">Sign In</span>
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      Sign in to save your notebook to the cloud
+                    </div>
+                  </button>
+                ) : (
+                  <button
+                    onClick={saveToDatabase}
+                    className="px-2.5 py-1.5 md:px-4 md:py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
+                  >
+                    <Save className="w-3.5 h-3.5 md:w-5 md:h-5 md:mr-2" />
+                    <span className="hidden md:inline">Save</span>
+                  </button>
+                )}
+                {user && (
+                  <button
+                    onClick={clearButton}
+                    className="px-2.5 py-1.5 md:px-4 md:md:py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 md:w-5 md:h-5 md:mr-2" />
+                    <span className="hidden md:inline">Clear</span>
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
 
