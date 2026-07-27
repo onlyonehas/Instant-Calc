@@ -330,7 +330,7 @@ export default function Index() {
       customOutput = "-";
     }
 
-    setOutput(`[${lines.length}→${(newOutput.match(/\n/g) || []).length}] ${newOutput}`);
+    setOutput(newOutput);
     setSum(keywordValues.tempSum);
     setPrev(keywordValues.tempPrev);
     variablesRef.current = { ...variables };

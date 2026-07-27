@@ -148,14 +148,9 @@ export default function About() {
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-white mb-4 text-center">About Instant Calc 🧮</h2>
           <p className="text-gray-300 mb-4">
-            Instant Calc is a cutting-edge calculation tool designed to revolutionize the way you
-            work with numbers. Our platform combines lightning-fast processing with intuitive
-            design, making complex computations a breeze for users of all levels.
-          </p>
-          <p className="text-gray-300 mb-4">
-            Whether you&apos;re a student tackling advanced mathematics, a professional dealing with
-            intricate financial models, or simply someone who loves efficient problem-solving,
-            Instant Calc is your ultimate companion for all calculation needs.
+            Instant Calc is a real-time calculation notebook. Type expenses, set variables,
+            write expressions — and see results instantly on the right. Every line is evaluated
+            as you type, with support for comments, headings, and deduction tracking.
           </p>
           <motion.div
             initial="hidden"
@@ -181,26 +176,25 @@ export default function About() {
           <h2 className="text-3xl font-bold text-center text-white mb-4">Key Features ✨</h2>
           <ul className="list-disc list-inside text-gray-300 space-y-2 mb-4">
             <li>
-              🗣️ Natural Language Syntax: Perform calculations using familiar phrases and
-              expressions.
+              🎨 Syntax Highlighting: Headings, comments, expenses, and variables are colour-coded as you type.
             </li>
             <li>
-              ⚡ Real-Time Evaluation: Instantly see the results of your calculations as you type.
+              ⚡ Real-Time Evaluation: Results appear instantly in the output panel — no buttons needed.
             </li>
             <li>
-              🔤 Variable Assignment: Define and use variables to store values for repeated use.
+              🔤 Variable Assignment: Use <code className="text-purple-400">name = expression</code> or <code className="text-purple-400">name: expression</code> to store values.
             </li>
             <li>
-              🧠 Expression Parsing: Evaluate complex expressions with operators, functions, and
-              parentheses.
+              💬 Comments &amp; Headings: Organise with <code className="text-purple-400">//</code> comments and <code className="text-purple-400">#</code> headings.
             </li>
             <li>
-              💬 Commenting: Add comments to your calculations for better organization and
-              understanding.
+              📅 Deduction Tracking: Set a deduction day per expense; past-due lines auto-comment.
             </li>
             <li>
-              📱 Responsive Design: Enjoy a seamless experience across different devices and screen
-              sizes.
+              🔄 Cloud Sync: Log in to save your notebook to Firebase and pick up where you left off.
+            </li>
+            <li>
+              🌙 Dark Mode: Toggle between light and dark themes.
             </li>
           </ul>
           <motion.div
@@ -222,16 +216,14 @@ export default function About() {
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl text-center font-bold text-white mb-4">Usage Guide 📘</h2>
           <ol className="list-decimal list-inside text-gray-300 space-y-2 mb-4">
-            <li>Type your calculations in the input textarea.</li>
-            <li>Press Enter or click outside the textarea to evaluate the expression.</li>
-            <li>The output will be displayed in the output textarea.</li>
-            <li>Store operations in a variable by starting with name=</li>
-            <li>Add comments using the // prefix to document your calculations.</li>
-            <li>Add headings using the # prefix for ease of labelling.</li>
-            <li>
-              Make use of reserved keywords [&quot;prev&quot;, &quot;sum&quot;, &quot;to&quot;,
-              &quot;monthlyPayDate&quot;, &quot;in&quot;]
-            </li>
+            <li>Type your calculations in the rich-text editor (left panel).</li>
+            <li>Each line is evaluated automatically — output appears on the right.</li>
+            <li>Use <code className="text-purple-400">name = value</code> or <code className="text-purple-400">name: value</code> to store a variable.</li>
+            <li>Use <code className="text-purple-400">//</code> to comment out a line, <code className="text-purple-400">#</code> for headings.</li>
+            <li>Reserved keywords: <code className="text-purple-400">prev</code> (last result), <code className="text-purple-400">sum</code> (running total), <code className="text-purple-400">monthlyPayDate</code> (pay-day countdown).</li>
+            <li>Click the calendar icon next to an expense to set its deduction day — it auto-comments when past due.</li>
+            <li>Toggle <strong>Due Next</strong> to uncomment all deduction lines for next-month planning.</li>
+            <li>Sign in to save your notebook automatically to the cloud.</li>
           </ol>
           <p className="text-gray-300 mb-4">
             Instant Calc is designed to be intuitive and user-friendly. Start exploring its
@@ -264,14 +256,12 @@ export default function About() {
             we&apos;re planning to implement:
           </p>
           <ul className="list-disc list-inside text-gray-300 space-y-2 mb-4">
-            <li>📊 Data Visualization: Show charts and graphs for your calculations.</li>
-            <li>📑 Multiple Tabs: Add and save more tabs for different calculation sessions.</li>
-            <li>
-              📤 Export Functionality: Export your calculations and results in various formats.
-            </li>
-            <li>📅 Pay Date Setting: Set a date for pay dates and track expenses that are due.</li>
-            <li>💾 Auto-Save: Automatically save your work to prevent data loss.</li>
-            <li>🔄 Sync Across Devices: Access your calculations from any device.</li>
+            <li>📊 Charts &amp; Visualisations for expense breakdowns.</li>
+            <li>📑 Multiple Tabs for different notebooks.</li>
+            <li>📤 Export to CSV / PDF.</li>
+            <li>📱 Progressive Web App — install on your phone.</li>
+            <li>🌐 Real-time multi-user collaboration.</li>
+            <li>🧮 Currency conversion (<code className="text-purple-400">100 usd in gbp</code>).</li>
           </ul>
           <p className="text-gray-300 mb-4">
             Stay tuned for these exciting updates that will make Instant Calc even more powerful and

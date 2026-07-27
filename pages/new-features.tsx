@@ -23,7 +23,6 @@ export default function NewFeatures() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Submit the form data to your backend here
-    console.log("Form Data Submitted:", formData);
   };
 
   return (
@@ -46,7 +45,7 @@ export default function NewFeatures() {
             <br />
             Let us know!
             <br />
-            We appreciate your feedback and are always looking for ways to improve our platform.
+            We review every request and prioritize based on community interest.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
