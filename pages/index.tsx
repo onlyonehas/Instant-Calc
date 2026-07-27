@@ -682,13 +682,24 @@ export default function Index() {
                     )}
                   </div>
                 ))}
-                <button
-                  onClick={addNotebook}
-                  className="p-1 rounded-md text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50 hover:text-blue-500 transition-colors flex-shrink-0"
-                  title="Add notebook"
-                >
-                  <Plus className="w-5 h-5" />
-                </button>
+                <div className="group relative flex-shrink-0">
+                  <button
+                    onClick={user ? addNotebook : undefined}
+                    disabled={!user}
+                    className={`p-1 rounded-md transition-colors flex-shrink-0 ${
+                      user
+                        ? "text-gray-500 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50 hover:text-blue-500 cursor-pointer"
+                        : "text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                    }`}
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                  {!user && (
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      Sign in for more features
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex flex-wrap gap-1.5 md:gap-2 items-center flex-shrink-0">
                 <button
@@ -701,25 +712,36 @@ export default function Index() {
                     <Moon className="w-4 h-4 md:w-5 md:h-5" />
                   )}
                 </button>
-                <button
-                  onClick={exportNotebooks}
-                  className="p-1.5 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
-                  title="Export notebooks"
-                >
-                  <svg
-                    className="w-4 h-4 md:w-5 md:h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
+                <div className="group relative">
+                  <button
+                    onClick={user ? exportNotebooks : undefined}
+                    disabled={!user}
+                    className={`p-1.5 md:p-2 rounded-full transition-colors duration-200 ${
+                      user
+                        ? "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                    }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 11l5-5m0 0l5 5m-5-5v12"
-                    />
-                  </svg>
-                </button>
+                    <svg
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 11l5-5m0 0l5 5m-5-5v12"
+                      />
+                    </svg>
+                  </button>
+                  {!user && (
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      Sign in for more features
+                    </div>
+                  )}
+                </div>
                 <input
                   ref={importFileRef}
                   type="file"
@@ -727,25 +749,36 @@ export default function Index() {
                   className="hidden"
                   onChange={importNotebooks}
                 />
-                <button
-                  onClick={() => importFileRef.current?.click()}
-                  className="p-1.5 md:p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
-                  title="Import notebooks"
-                >
-                  <svg
-                    className="w-4 h-4 md:w-5 md:h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
+                <div className="group relative">
+                  <button
+                    onClick={user ? () => importFileRef.current?.click() : undefined}
+                    disabled={!user}
+                    className={`p-1.5 md:p-2 rounded-full transition-colors duration-200 ${
+                      user
+                        ? "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                    }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 13l5 5m0 0l5-5m-5 5V6"
-                    />
-                  </svg>
-                </button>
+                    <svg
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 13l5 5m0 0l5-5m-5 5V6"
+                      />
+                    </svg>
+                  </button>
+                  {!user && (
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      Sign in for more features
+                    </div>
+                  )}
+                </div>
                 {!user ? (
                   <button
                     onClick={signInWithGoogle}
