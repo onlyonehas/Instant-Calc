@@ -43,7 +43,7 @@ let nextId = 1;
 
 export default function Index() {
   const user: User | null = useCustomAuth();
-  const { calculations, saveCalculations, isLoading } = useCalculations();
+  const { notebooksData, saveNotebooks, isLoading } = useCalculations();
   const [notebooks, setNotebooks] = useState<Notebook[]>([
     { id: String(nextId++), name: "General Expense", input: initialInput, output: null },
   ]);
@@ -100,11 +100,12 @@ export default function Index() {
   const notebookName = activeNotebook?.name ?? "";
 
   useEffect(() => {
-    if (calculations) {
-      setActiveInput(calculations.input);
-      setActiveOutput(calculations.output);
+    if (notebooksData && notebooksData.notebooks.length) {
+      setNotebooks(notebooksData.notebooks);
+      setActiveNotebookId(notebooksData.activeNotebookId);
+      quillEditorRef.current = null;
     }
-  }, [calculations]);
+  }, [notebooksData]);
 
   useEffect(() => {
     if (!user) {
@@ -294,10 +295,8 @@ export default function Index() {
   };
 
   const saveToDatabase = () => {
-    if (user && input && output) {
-      if (input !== initialInput && output !== null) {
-        saveCalculations(input, output);
-      }
+    if (user) {
+      saveNotebooks(notebooks, activeNotebookId);
     }
   };
 
