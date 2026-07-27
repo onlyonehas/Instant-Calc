@@ -239,7 +239,6 @@ export default function Index() {
       return;
     }
     const lines = input.split("\n");
-    const lineCount = lines.length;
 
     for (const line of lines) {
       const trimmedLine = line.trim();
@@ -316,7 +315,7 @@ export default function Index() {
       customOutput = "-";
     }
 
-    setOutput(`[${lines.length}→${(newOutput.match(/\n/g)||[]).length}] ${newOutput}`);
+    setOutput(`[${lines.length}→${(newOutput.match(/\n/g) || []).length}] ${newOutput}`);
     setSum(keywordValues.tempSum);
     setPrev(keywordValues.tempPrev);
     variablesRef.current = { ...variables };
