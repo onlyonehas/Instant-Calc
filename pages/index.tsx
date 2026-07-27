@@ -9,11 +9,11 @@ import { VariableMap } from "@/helpers/sharedTypes";
 import { useCalculations } from "@/hooks/useCalculations";
 import { useCustomAuth } from "@/hooks/useCustomAuth";
 import "@/styles/Dark.css";
-import { database } from "@/pages/_document";
-import { User } from "firebase/auth";
+import { app, database } from "@/pages/_document";
+import { GoogleAuthProvider, User, getAuth, signInWithPopup } from "firebase/auth";
 import { get, ref, set } from "firebase/database";
 import { motion } from "framer-motion";
-import { Calendar, Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
+import { Calendar, CloudOff, Edit2, Moon, Save, Sun, Trash2 } from "lucide-react";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import "tailwindcss/tailwind.css";
@@ -79,6 +79,15 @@ export default function Index() {
   }, [calculations]);
 
   useEffect(() => {
+    if (!user) {
+      setInput(initialInput);
+      setOutput("");
+      setDeductionDates({});
+      localStorage.removeItem("deductionDates");
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (outputRef.current) {
       outputRef.current.style.height = "auto";
       outputRef.current.style.height = `${outputRef.current.scrollHeight}px`;
@@ -92,6 +101,7 @@ export default function Index() {
   useEffect(() => {
     if (isEditingName && nameInputRef.current) {
       nameInputRef.current.focus();
+      nameInputRef.current.select();
     }
   }, [isEditingName]);
 
@@ -157,8 +167,11 @@ export default function Index() {
 
   const handleQuillChange = useCallback(
     (_value: string, _delta: any, source: string, _editor: any) => {
+      if (_editor && !quillEditorRef.current) {
+        quillEditorRef.current = _editor;
+      }
       if (source !== "user") return;
-      const editor = getQuillEditor();
+      const editor = _editor || getQuillEditor();
       if (!editor) return;
       attachQuillScroll();
       const text = (editor.getText() || "").replace(/\n$/, "");
@@ -171,14 +184,23 @@ export default function Index() {
   );
 
   useEffect(() => {
-    const editor = getQuillEditor();
-    if (!editor) return;
-    const currentText = (editor.getText() || "").replace(/\n$/, "");
-    if (currentText !== input) {
-      editor.setText(input || "");
-    }
-    requestAnimationFrame(() => highlightSyntax(editor));
-  }, [input, highlightSyntax, getQuillEditor]);
+    let rafId: number;
+    const trySync = () => {
+      const editor = getQuillEditor();
+      if (!editor) {
+        rafId = requestAnimationFrame(trySync);
+        return;
+      }
+      const currentText = (editor.getText() || "").replace(/\n$/, "");
+      if (currentText !== input) {
+        editor.setText(input || "");
+      }
+      requestAnimationFrame(() => highlightSyntax(editor));
+      attachQuillScroll();
+    };
+    trySync();
+    return () => cancelAnimationFrame(rafId);
+  }, [input, highlightSyntax, getQuillEditor, attachQuillScroll]);
 
   useEffect(() => {
     attachQuillScroll();
@@ -229,6 +251,16 @@ export default function Index() {
   const keywordValues = {
     tempSum: 0,
     tempPrev: 0,
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const saveToDatabase = () => {
@@ -363,7 +395,7 @@ export default function Index() {
     setNotebookName(event.target.value);
   };
 
-  const handleNotebookNameDoubleClick = () => {
+  const handleNotebookNameClick = () => {
     setIsEditingName(true);
   };
 
@@ -430,11 +462,14 @@ export default function Index() {
               />
             ) : (
               <h2
-                className="text-xl font-semibold text-gray-800 dark:text-white cursor-pointer flex items-center"
-                onDoubleClick={handleNotebookNameDoubleClick}
+                className="text-xl font-semibold text-gray-800 dark:text-white cursor-pointer flex items-center group"
+                onClick={handleNotebookNameClick}
               >
                 {notebookName}
-                <Edit2 className="w-4 h-4 ml-2 text-gray-500 dark:text-gray-400" />
+                <Edit2 className="w-4 h-4 ml-2 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 transition-colors" />
+                <span className="ml-1 text-xs text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                  rename
+                </span>
               </h2>
             )}
             <div className="flex flex-wrap gap-1.5 md:gap-2 items-center">
@@ -448,7 +483,18 @@ export default function Index() {
                   <Moon className="w-4 h-4 md:w-5 md:h-5" />
                 )}
               </button>
-              {user && (
+              {!user ? (
+                <button
+                  onClick={signInWithGoogle}
+                  className="group relative px-2.5 py-1.5 md:px-4 md:py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-full hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
+                >
+                  <CloudOff className="w-3.5 h-3.5 md:w-5 md:h-5 md:mr-2" />
+                  <span className="hidden md:inline">Sign In</span>
+                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Sign in to save your notebook to the cloud
+                  </div>
+                </button>
+              ) : (
                 <button
                   onClick={saveToDatabase}
                   className="px-2.5 py-1.5 md:px-4 md:py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 flex items-center text-xs md:text-sm"
@@ -490,14 +536,14 @@ export default function Index() {
                 <div className="text-xs md:text-sm font-mono text-gray-700 dark:text-gray-200 whitespace-nowrap">
                   {showRemaining ? (
                     <span>
-                      Remaining:{" "}
+                      Due this period:{" "}
                       <span className="font-bold text-green-600 dark:text-green-400">
                         {remainingTotal.toFixed(2)}
                       </span>
                     </span>
                   ) : (
                     <span>
-                      Due next:{" "}
+                      Upcoming:{" "}
                       <span className="font-bold text-amber-600 dark:text-amber-400">
                         {dueNextTotal.toFixed(2)}
                       </span>
@@ -515,7 +561,7 @@ export default function Index() {
                         : "text-gray-600 dark:text-gray-300"
                     }`}
                   >
-                    Remaining
+                    This Period
                   </div>
                   <div
                     className={`px-3 py-1 text-xs rounded-full transition-all ${
@@ -524,7 +570,7 @@ export default function Index() {
                         : "text-gray-600 dark:text-gray-300"
                     }`}
                   >
-                    Due Next
+                    Upcoming
                   </div>
                 </div>
               </motion.div>
@@ -574,7 +620,7 @@ export default function Index() {
                     }}
                   >
                     <Calendar
-                      className={`w-3.5 h-3.5 transition-opacity cursor-pointer ${deductionDates[name] ? "text-green-500 opacity-100" : "text-gray-400 opacity-0 group-hover:opacity-100 hover:text-green-500"}`}
+                      className={`w-3.5 h-3.5 transition-all cursor-pointer ${deductionDates[name] ? "text-green-500 opacity-100" : "text-gray-400 opacity-40 hover:opacity-100 hover:text-green-500"}`}
                     />
                   </div>
                 );

@@ -1,6 +1,6 @@
 import { database } from "@/pages/_document";
 import { User } from "firebase/auth";
-import { get, off, ref, set, update } from "firebase/database";
+import { get, ref, set, update } from "firebase/database";
 import { useEffect, useState } from "react";
 import { useCustomAuth } from "./useCustomAuth";
 
@@ -29,12 +29,15 @@ export const useCalculations = (): UseCalculationsResult => {
     if (user && database) {
       setCalculationsRef(ref(database, `users/${user?.uid}/calculations`));
     }
-    return () => {
-      if (calculationsRef) {
-        off(calculationsRef);
-      }
-    };
   }, [user, database]);
+
+  useEffect(() => {
+    if (!user) {
+      setCalculations(null);
+      setHasFetchedCalculations(false);
+      setCalculationsRef(null);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!hasFetchedCalculations && calculationsRef) {
