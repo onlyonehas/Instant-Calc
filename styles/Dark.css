@@ -95,7 +95,7 @@
   border: none;
   background: transparent;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 .quill-editor .ql-editor {
   padding: 8px 16px 8px 16px;
@@ -104,7 +104,17 @@
   height: auto;
   outline: none;
   overflow: hidden;
-  background-image: repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, transparent 48px, transparent 95px, #999 95px, #999 96px);
+  white-space: pre;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 47px,
+    #999 47px,
+    #999 48px,
+    transparent 48px,
+    transparent 95px,
+    #999 95px,
+    #999 96px
+  );
 }
 .quill-editor .ql-editor p {
   margin: 0;
