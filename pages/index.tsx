@@ -149,7 +149,8 @@ export default function Index() {
   }, []);
 
   const handleQuillChange = useCallback(
-    (_value: string, _delta: any, _source: string, _editor: any) => {
+    (_value: string, _delta: any, source: string, _editor: any) => {
+      if (source !== "user") return;
       const editor = getQuillEditor();
       if (!editor) return;
       attachQuillScroll();
@@ -524,7 +525,7 @@ export default function Index() {
           >
             <div className="flex-1 min-w-0 relative" ref={inputContainerRef}>
               <ReactQuill
-                defaultValue={input || ""}
+                defaultValue=""
                 onChange={handleQuillChange}
                 modules={quillModules}
                 formats={quillFormats}
