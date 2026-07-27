@@ -98,7 +98,7 @@
   overflow-x: hidden;
 }
 .quill-editor .ql-editor {
-  padding: 8px 2px;
+  padding: 8px 16px 8px 16px;
   line-height: 48px;
   min-height: calc(100vh - 400px);
   height: auto;

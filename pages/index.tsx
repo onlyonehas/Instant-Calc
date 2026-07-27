@@ -551,7 +551,7 @@ export default function Index() {
             </div>
 
             <div
-              className="w-3 mr-0.5 relative flex-shrink-0 overflow-visible"
+              className="w-4 mr-2 relative flex-shrink-0 overflow-visible"
               ref={iconContainerRef}
             >
               {variableLines.map(({ name, lineIndex }) => {
@@ -593,7 +593,7 @@ export default function Index() {
                   backgroundImage:
                     "repeating-linear-gradient(transparent, transparent 47px, #999 47px, #999 48px, var(--row-alt) 48px, var(--row-alt) 95px, #999 95px, #999 96px)",
                   lineHeight: "48px",
-                  padding: "8px 2px",
+                  padding: "8px 16px",
                   border: "none",
                   minHeight: "calc(100vh - 400px)",
                   minWidth: "60px",
