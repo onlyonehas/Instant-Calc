@@ -603,6 +603,9 @@ export default function Index() {
                 {notebooks.map((nb) => (
                   <div
                     key={nb.id}
+                    onClick={() => {
+                      if (nb.id !== activeNotebookId) switchNotebook(nb.id);
+                    }}
                     className={`group relative flex items-center gap-1 px-2.5 py-1 rounded-md cursor-pointer text-sm whitespace-nowrap transition-colors ${
                       nb.id === activeNotebookId
                         ? "bg-white dark:bg-gray-700 shadow text-gray-800 dark:text-white font-medium"
