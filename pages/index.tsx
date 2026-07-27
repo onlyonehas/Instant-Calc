@@ -79,6 +79,15 @@ export default function Index() {
   }, [calculations]);
 
   useEffect(() => {
+    if (!user) {
+      setInput(initialInput);
+      setOutput("");
+      setDeductionDates({});
+      localStorage.removeItem("deductionDates");
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (outputRef.current) {
       outputRef.current.style.height = "auto";
       outputRef.current.style.height = `${outputRef.current.scrollHeight}px`;
@@ -530,6 +539,18 @@ export default function Index() {
               </motion.div>
             );
           })()}
+
+          {!user && (
+            <div className="mx-auto mb-4 max-w-4xl flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
+              <span>Sign in to save your notebook to the cloud and access it from anywhere.</span>
+              <button
+                onClick={() => toggleSingOutModal(true)}
+                className="ml-4 rounded-md bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
+              >
+                Sign In
+              </button>
+            </div>
+          )}
 
           <motion.div
             className="flex-grow flex gap-0 bg-yellow-100 dark:bg-gray-800 rounded-b-lg shadow-lg p-4"

@@ -1,3 +1,4 @@
+import { Analytics, getAnalytics, isSupported } from "firebase/analytics";
 import { FirebaseApp, getApp, getApps, initializeApp } from "firebase/app";
 import { Auth, getAuth } from "firebase/auth";
 import { Database, getDatabase } from "firebase/database";
@@ -23,6 +24,7 @@ const hasRequiredConfig = !!(
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
 let database: Database | undefined;
+let analytics: Analytics | undefined;
 
 try {
   if (hasRequiredConfig) {
@@ -34,4 +36,12 @@ try {
   // Firebase unavailable during build/SSR or missing env vars
 }
 
-export { app, auth, database };
+if (hasRequiredConfig && typeof window !== "undefined") {
+  isSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(app!);
+    }
+  });
+}
+
+export { app, auth, database, analytics };

@@ -49,11 +49,7 @@ export function getAutoCommentedLines(
     }
 
     const info = parseVariableLine(line);
-    if (
-      info &&
-      deductionDates[info.name] &&
-      currentDay >= deductionDates[info.name]
-    ) {
+    if (info && deductionDates[info.name] && currentDay >= deductionDates[info.name]) {
       return `//${line}`;
     }
     return line;
@@ -71,9 +67,7 @@ export function tryGetValue(
   if (originalValues[name] !== undefined) return originalValues[name];
   const line = inputLines[lineIndex];
   if (!line) return undefined;
-  const content = line.trim().startsWith("//")
-    ? line.trim().slice(2).trim()
-    : line.trim();
+  const content = line.trim().startsWith("//") ? line.trim().slice(2).trim() : line.trim();
   const sep = content.includes("=") ? "=" : ":";
   const expr = content.split(sep).slice(1).join(sep).trim();
   const num = Number(expr);
@@ -98,25 +92,18 @@ export function computeSummary(
   for (let i = 0; i < inputLines.length; i++) {
     const line = inputLines[i];
     const info = parseVariableLine(line);
-    if (!info || info.separator !== ":") continue;
+    if (!info || info.separator !== ":" || info.isCommented) continue;
 
     const value = variables[info.name];
     if (value !== undefined) {
       const hasDeduction = deductionDates[info.name] !== undefined;
-      const isDeducted =
-        hasDeduction && currentDay >= deductionDates[info.name];
+      const isDeducted = hasDeduction && currentDay >= deductionDates[info.name];
       if (!isDeducted) {
         remainingTotal += value;
       }
     }
 
-    const dueValue = tryGetValue(
-      inputLines,
-      variables,
-      originalValues,
-      info.name,
-      i,
-    );
+    const dueValue = tryGetValue(inputLines, variables, originalValues, info.name, i);
     if (dueValue !== undefined) {
       dueNextTotal += dueValue;
     }
