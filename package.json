@@ -14,7 +14,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "firebase": "^10.13.1",
+    "firebase": "^12.17.1",
     "framer-motion": "^11.5.4",
     "lucide-react": "^0.439.0",
     "mathjs": "^15.2.0",
