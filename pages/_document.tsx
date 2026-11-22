@@ -1,7 +1,4 @@
-import { app, auth, database } from "@/lib/firebase-client";
 import Document, { Head, Html, Main, NextScript } from "next/document";
-
-export { app, auth, database };
 
 export default class MyDocument extends Document {
   render() {

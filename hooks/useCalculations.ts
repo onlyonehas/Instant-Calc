@@ -1,4 +1,4 @@
-import { database } from "@/pages/_document";
+import { database } from "@/lib/firebase-client";
 import { User } from "firebase/auth";
 import { get, ref, set } from "firebase/database";
 import { useEffect, useState } from "react";

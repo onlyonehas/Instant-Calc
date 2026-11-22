@@ -9,7 +9,7 @@ import { VariableMap } from "@/helpers/sharedTypes";
 import { useCalculations } from "@/hooks/useCalculations";
 import { useCustomAuth } from "@/hooks/useCustomAuth";
 import "@/styles/Dark.css";
-import { app, database } from "@/pages/_document";
+import { app, database } from "@/lib/firebase-client";
 import { GoogleAuthProvider, User, getAuth, signInWithPopup } from "firebase/auth";
 import { get, ref, set } from "firebase/database";
 import { motion } from "framer-motion";

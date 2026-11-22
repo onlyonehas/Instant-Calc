@@ -1,7 +1,7 @@
 "use client";
 
 import { useCustomAuth } from "@/hooks/useCustomAuth";
-import { database } from "@/pages/_document";
+import { database } from "@/lib/firebase-client";
 import { User } from "firebase/auth";
 import { get, ref, set } from "firebase/database";
 import React, { createContext, useContext, useEffect, useState } from "react";
@@ -11,13 +11,9 @@ interface DarkModeContextType {
   toggleDarkMode: () => void;
 }
 
-const DarkModeContext = createContext<DarkModeContextType | undefined>(
-  undefined,
-);
+const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
 
-export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const DarkModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [darkMode, setDarkMode] = useState(true);
   const user: User | null = useCustomAuth();
 

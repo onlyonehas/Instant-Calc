@@ -1,7 +1,7 @@
 import { useCustomAuth } from "@/hooks/useCustomAuth";
 import { GoogleAuthProvider, User, getAuth, signInWithPopup, signOut } from "firebase/auth";
 import Link from "next/link";
-import { app } from "../pages/_document";
+import { app } from "@/lib/firebase-client";
 import { DarkMode } from "./DarkMode";
 import { Profile } from "./Profile";
 
